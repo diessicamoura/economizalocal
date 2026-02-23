@@ -3,174 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EconomizaLocal</title>
+    <title>EconomizaLocal - Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .nav-btn.active { color: #059669; border-top: 3px solid #059669; }
+        .promo-card { background: linear-gradient(135deg, #eff6ff 0%, #dcfce7 100%); }
+        .item-detalhe { animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         #toast {
-            visibility: hidden; min-width: 200px; background-color: #059669; color: #fff;
-            text-align: center; border-radius: 50px; padding: 12px; position: fixed;
-            z-index: 100; left: 50%; transform: translateX(-50%); top: 20px; font-weight: bold; font-size: 12px;
+            visibility: hidden; min-width: 250px; background-color: #059669; color: #fff;
+            text-align: center; border-radius: 12px; padding: 16px; position: fixed;
+            z-index: 100; left: 50%; transform: translateX(-50%); top: 30px; font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadein { from {top: 0; opacity: 0;} to {top: 20px; opacity: 1;} }
-        @keyframes fadeout { from {top: 20px; opacity: 1;} to {top: 0; opacity: 0;} }
+        @keyframes fadein { from {top: 0; opacity: 0;} to {top: 30px; opacity: 1;} }
+        @keyframes fadeout { from {top: 30px; opacity: 1;} to {top: 0; opacity: 0;} }
+        ::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="bg-slate-100 font-sans">
+<body class="bg-slate-50 font-sans">
 
-    <div id="toast">LISTA ATUALIZADA!</div>
-    
-    <header class="bg-blue-700 text-white p-4 shadow-lg sticky top-0 z-50">
-        <h1 class="text-lg font-bold mb-3"><i class="fas fa-shopping-basket"></i> EconomizaLocal</h1>
-        <div class="relative">
-            <input type="text" id="mainSearch" onkeyup="filtrarProdutos()" placeholder="O que você precisa?" 
-                class="w-full p-3 pl-10 rounded-2xl text-gray-800 text-sm outline-none">
-            <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
-        </div>
-    </header>
-
-    <main class="px-4 pt-4 pb-28">
-        <section id="tab-melhor-preco" class="tab-content active">
-            <h2 class="text-xs font-black text-gray-400 uppercase mb-3">🛒 Comparativo de Preços</h2>
-            <div class="grid gap-4" id="comparativo-geral"></div>
-        </section>
+    <div id="app-content">
+        <div id="toast">LISTA ATUALIZADA</div>
         
-        <section id="tab-carrinho" class="tab-content">
-            <h2 class="text-sm font-bold text-gray-800 mb-4 text-center uppercase">Minha Lista</h2>
-            <div id="carrinho-vazio" class="text-center py-10"><i class="fas fa-receipt text-gray-300 text-6xl mb-4"></i><p class="text-gray-400">Sua lista está vazia</p></div>
-            <div id="resumo-carrinho" class="space-y-3"></div>
-            
-            <div id="area-compartilhar" class="mt-8 p-6 bg-white rounded-3xl border text-center hidden shadow-sm">
-                <p class="text-[10px] font-bold text-gray-400 mb-4 uppercase">Compartilhar App</p>
-                <div id="qrcode" class="flex justify-center mb-4"></div>
-                <button onclick="limparLista()" class="text-red-400 text-xs font-bold uppercase py-2">Limpar Lista</button>
+        <header class="bg-blue-700 text-white p-4 shadow-lg sticky top-0 z-50">
+            <div class="flex justify-between items-center mb-3">
+                <h1 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-shopping-basket"></i> EconomizaLocal</h1>
             </div>
-        </section>
-    </main>
+            <div class="relative">
+                <input type="text" id="mainSearch" onkeyup="filtrarProdutos()" placeholder="Pesquise: leite, carne, detergente..." 
+                    class="w-full p-2.5 pl-10 rounded-xl text-gray-800 text-sm focus:ring-2 focus:ring-green-400 outline-none shadow-md">
+                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+            </div>
+        </header>
 
-    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-2 z-50 shadow-inner">
-        <button onclick="showTab('melhor-preco', this)" class="nav-btn active flex flex-col items-center w-full"><i class="fas fa-tag text-xl"></i><span class="text-[9px] font-bold">PREÇOS</span></button>
-        <button onclick="showTab('carrinho', this)" class="nav-btn flex flex-col items-center w-full text-gray-400"><i class="fas fa-list-check text-xl"></i><span class="text-[9px] font-bold">MINHA LISTA</span></button>
-    </nav>
+        <main class="px-4 pt-4 pb-28">
+            <section id="tab-melhor-preco" class="tab-content active">
+                <div id="secao-promocoes">
+                    <h2 class="text-xs font-black text-blue-800 uppercase tracking-widest mb-3 italic">🔥 Promoções da Semana</h2>
+                    <div class="flex gap-3 overflow-x-auto pb-4 mb-4" id="promo-container"></div>
+                </div>
+                <h2 id="titulo-lista" class="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">🛒 Comparativo Geral</h2>
+                <div class="grid gap-4" id="comparativo-geral"></div>
+            </section>
+            
+            <section id="tab-mercados" class="tab-content">
+                <div id="lista-mercados" class="grid gap-3"></div>
+                <div id="detalhe-mercado" class="hidden">
+                    <button onclick="voltarMercados()" class="text-blue-600 font-bold mb-4 text-xs uppercase"><i class="fas fa-arrow-left"></i> Voltar</button>
+                    <div id="mercado-header-info" class="mb-4"></div>
+                    <div class="grid gap-2" id="produtos-mercado-especifico"></div>
+                </div>
+            </section>
+
+            <section id="tab-carrinho" class="tab-content">
+                <h2 class="text-sm font-bold text-gray-800 mb-4 uppercase text-center italic tracking-widest">Comparativo de Minha Lista</h2>
+                <div id="carrinho-vazio" class="text-center py-10"><i class="fas fa-receipt text-gray-200 text-6xl mb-4"></i><p class="text-gray-400 text-sm">Sua lista está vazia!</p></div>
+                <div id="resumo-carrinho" class="space-y-3"></div>
+                <div id="btn-limpar-container" class="hidden mt-6 text-center">
+                    <button onclick="limparLista()" class="text-red-400 text-xs font-bold uppercase border-b border-red-200 pb-1 italic">Limpar Lista</button>
+                </div>
+            </section>
+        </main>
+
+        <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-2 shadow-2xl z-50">
+            <button onclick="showTab('melhor-preco', this)" class="nav-btn active flex flex-col items-center p-2 w-full"><i class="fas fa-award text-xl"></i><span class="text-[9px] mt-1 font-bold uppercase">Melhor Preço</span></button>
+            <button onclick="showTab('mercados', this)" class="nav-btn flex flex-col items-center p-2 w-full text-gray-400"><i class="fas fa-store text-xl"></i><span class="text-[9px] mt-1 font-bold uppercase">Mercados</span></button>
+            <button onclick="showTab('carrinho', this)" class="nav-btn flex flex-col items-center p-2 w-full text-gray-400"><i class="fas fa-shopping-bag text-xl"></i><span class="text-[9px] mt-1 font-bold uppercase">Minha Lista</span></button>
+        </nav>
+    </div>
 
     <script>
-        // --- BASE DE DADOS (EDITE OS PREÇOS AQUI) ---
         const produtos = [
-            { id: 1, nome: "Leite 1L", marca: "Piracanjuba", precoM1: 4.89, precoM2: 5.20, precoM3: 4.75, icone: "fa-glass-water" },
-            { id: 2, nome: "Arroz 5kg", marca: "Tio João", precoM1: 29.90, precoM2: 31.50, precoM3: 28.50, icone: "fa-seedling" },
-            { id: 3, nome: "Feijão 1kg", marca: "Carioca", precoM1: 8.50, precoM2: 7.90, precoM3: 8.20, icone: "fa-circle" },
-            { id: 4, nome: "Óleo 900ml", marca: "Soya", precoM1: 6.80, precoM2: 6.50, precoM3: 6.90, icone: "fa-bottle-droplet" },
-            { id: 5, nome: "Café 500g", marca: "Melitta", precoM1: 18.90, precoM2: 17.50, precoM3: 19.20, icone: "fa-mug-hot" }
+            { id: 1, nome: "Leite 1L", marca: "Piracanjuba", precoM1: 4.89, precoM2: 5.20, precoM3: 4.75, promo: true },
+            { id: 2, nome: "Leite 1L", marca: "Frimesa", precoM1: 4.95, precoM2: 4.80, precoM3: 5.10, promo: false },
+            { id: 13, nome: "Alcatra KG", marca: "Bovino", precoM1: 39.90, precoM2: 42.50, precoM3: 38.80, promo: true },
+            { id: 16, nome: "Detergente 500ml", marca: "Ipê", precoM1: 2.50, precoM2: 2.35, precoM3: 2.60, promo: true },
+            { id: 4, nome: "Café 500g", marca: "Melitta", precoM1: 18.50, precoM2: 17.20, precoM3: 19.00, promo: true }
         ];
+        const mercados = [{ id: 'M1', nome: "Mercado Copagril" }, { id: 'M2', nome: "Supermercado Waimman" }, { id: 'M3', nome: "Hiper Rimava" }];
+        let minhaLista = [];
+        let mercadoAtualId = null;
 
-        const mercados = [{ id: 'M1', nome: "Copagril" }, { id: 'M2', nome: "Waimann" }, { id: 'M3', nome: "Dilettare" }];
-        let minhaLista = JSON.parse(localStorage.getItem('economiza_lista')) || [];
+        function renderizarHome(listaParaExibir, isBusca) {
+            const promoCont = document.getElementById('promo-container');
+            const geralCont = document.getElementById('comparativo-geral');
+            geralCont.innerHTML = '';
+            
+            if(!isBusca) {
+                document.getElementById('secao-promocoes').classList.remove('hidden');
+                promoCont.innerHTML = '';
+                produtos.filter(p => p.promo).forEach(p => {
+                    const minP = Math.min(p.precoM1, p.precoM2, p.precoM3);
+                    const idx = [p.precoM1, p.precoM2, p.precoM3].indexOf(minP);
+                    promoCont.innerHTML += `<div class="promo-card min-w-[200px] p-4 rounded-2xl border border-blue-100"><h4 class="font-bold text-gray-800 text-sm">${p.nome}</h4><p class="text-[10px] text-blue-600 font-bold uppercase">${p.marca} • ${mercados[idx].nome}</p><p class="text-green-600 font-black text-lg">R$ ${minP.toFixed(2)}</p></div>`;
+                });
+            } else {
+                document.getElementById('secao-promocoes').classList.add('hidden');
+            }
 
-        function salvar() { localStorage.setItem('economiza_lista', JSON.stringify(minhaLista)); }
-
-        function renderizarHome(lista) {
-            const cont = document.getElementById('comparativo-geral');
-            cont.innerHTML = lista.map(p => {
-                const item = minhaLista.find(i => i.id === p.id);
-                const qtd = item ? item.quantidade : 0;
-                return `
-                <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
-                                <i class="fas ${p.icone} text-lg"></i>
-                            </div>
-                            <div><h4 class="font-bold text-gray-800 text-sm">${p.nome}</h4><p class="text-[10px] text-gray-400 font-bold uppercase">${p.marca}</p></div>
+            listaParaExibir.forEach(p => {
+                const itemNaLista = minhaLista.find(item => item.id === p.id);
+                const qtd = itemNaLista ? itemNaLista.quantidade : 0;
+                
+                if (isBusca) {
+                    geralCont.innerHTML += `
+                    <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div><h4 class="font-black text-gray-800">${p.nome}</h4><p class="text-xs text-gray-400 uppercase font-bold">${p.marca}</p></div>
+                            ${renderSeletorQtd(p.id, qtd)}
                         </div>
-                        ${renderSeletor(p.id, qtd)}
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 pt-3 border-t border-dashed">
-                        ${mercados.map(m => `
-                            <div class="text-center">
-                                <p class="text-[8px] text-gray-400 uppercase font-bold">${m.nome}</p>
-                                <p class="text-xs font-black ${Math.min(p.precoM1, p.precoM2, p.precoM3) == p['preco'+m.id] ? 'text-green-600' : 'text-slate-700'}">R$ ${p['preco'+m.id].toFixed(2)}</p>
-                            </div>`).join('')}
-                    </div>
-                </div>`;
-            }).join('');
+                        <div class="grid grid-cols-3 gap-2 pt-2 border-t">
+                            ${mercados.map(m => `
+                                <div class="text-center p-1 rounded-lg ${Math.min(p.precoM1, p.precoM2, p.precoM3) == p['preco'+m.id] ? 'bg-green-50 border border-green-100' : ''}">
+                                    <p class="text-[8px] text-gray-400 uppercase truncate">${m.nome}</p>
+                                    <p class="text-xs font-black ${Math.min(p.precoM1, p.precoM2, p.precoM3) == p['preco'+m.id] ? 'text-green-600' : 'text-gray-700'}">R$ ${p['preco'+m.id].toFixed(2)}</p>
+                                </div>`).join('')}
+                        </div>
+                    </div>`;
+                } else {
+                    const precos = [p.precoM1, p.precoM2, p.precoM3];
+                    const minP = Math.min(...precos);
+                    const idxMin = precos.indexOf(minP);
+                    geralCont.innerHTML += `
+                    <div class="bg-white p-3 rounded-xl border flex justify-between items-center shadow-sm">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="text-sm font-bold text-gray-800">${p.nome}</h4>
+                                <span class="bg-blue-50 text-blue-700 border border-blue-200/30 text-[11px] px-2 py-0.5 rounded-full font-medium uppercase">${mercados[idxMin].nome}</span>
+                            </div>
+                            <p class="text-[10px] text-gray-400">${p.marca} • Menor: <span class="text-green-600 font-bold">R$ ${minP.toFixed(2)}</span></p>
+                        </div>
+                        ${renderSeletorQtd(p.id, qtd)}
+                    </div>`;
+                }
+            });
         }
 
-        function renderSeletor(id, qtd) {
-            if (qtd === 0) return `<button onclick="add(${id})" class="bg-blue-700 text-white text-[10px] px-4 py-2 rounded-xl font-bold shadow-md active:scale-95 transition">ADD</button>`;
-            return `<div class="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
-                <button onclick="remove(${id})" class="w-8 h-8 bg-white rounded-lg text-red-500 shadow-sm"><i class="fas ${qtd === 1 ? 'fa-trash-alt' : 'fa-minus'} text-xs"></i></button>
-                <span class="text-sm font-black text-blue-700 w-5 text-center">${qtd}</span>
-                <button onclick="add(${id})" class="w-8 h-8 bg-blue-700 rounded-lg text-white shadow-sm"><i class="fas fa-plus text-xs"></i></button>
+        function renderSeletorQtd(id, qtd, estiloMini = false) {
+            if (qtd === 0) {
+                return `<button onclick="adicionarLista(${id})" class="${estiloMini ? 'bg-green-600 text-white w-8 h-8 rounded-lg' : 'bg-green-600 text-white text-[10px] px-3 py-2 rounded-lg'} font-bold uppercase active:scale-95 transition">${estiloMini ? '<i class="fas fa-plus"></i>' : 'Adicionar'}</button>`;
+            }
+            return `
+            <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200">
+                <button onclick="removerItemEspecifico(${id})" class="w-7 h-7 flex items-center justify-center bg-white rounded-md text-red-500 shadow-sm active:scale-75 transition"><i class="fas ${qtd === 1 ? 'fa-trash-alt' : 'fa-minus'} text-xs"></i></button>
+                <span class="text-sm font-black text-blue-700 min-w-[20px] text-center">${qtd}</span>
+                <button onclick="adicionarLista(${id})" class="w-7 h-7 flex items-center justify-center bg-green-600 rounded-md text-white shadow-sm active:scale-75 transition"><i class="fas fa-plus text-xs"></i></button>
             </div>`;
         }
 
-        function add(id) {
-            const item = minhaLista.find(i => i.id === id);
-            if (item) item.quantidade++; else { const p = produtos.find(x => x.id === id); minhaLista.push({...p, quantidade: 1}); }
-            salvar(); atualizar();
+        function filtrarProdutos() {
+            const termo = document.getElementById('mainSearch').value.toLowerCase();
+            const titulo = document.getElementById('titulo-lista');
+            if(termo.length > 0) {
+                renderizarHome(produtos.filter(p => p.nome.toLowerCase().includes(termo) || p.marca.toLowerCase().includes(termo)), true);
+                titulo.innerText = `🔍 Resultados para: "${termo}"`;
+            } else {
+                renderizarHome(produtos, false);
+                titulo.innerText = "🛒 Comparativo Geral";
+            }
         }
 
-        function remove(id) {
-            const item = minhaLista.find(i => i.id === id);
-            if (item.quantidade > 1) item.quantidade--; else minhaLista = minhaLista.filter(i => i.id !== id);
-            salvar(); atualizar();
+        function adicionarLista(id) { 
+            const itemExistente = minhaLista.find(item => item.id === id);
+            if (itemExistente) { itemExistente.quantidade++; } 
+            else { const p = produtos.find(item => item.id === id); minhaLista.push({ ...p, quantity: 1, quantidade: 1 }); }
+            atualizarTelas();
         }
 
-        function atualizar() {
+        function removerItemEspecifico(id) { 
+            const item = minhaLista.find(i => i.id === id);
+            if (item) {
+                if (item.quantidade > 1) { item.quantidade--; } 
+                else { minhaLista = minhaLista.filter(i => i.id !== id); }
+            }
+            atualizarTelas();
+        }
+
+        function atualizarTelas() {
             filtrarProdutos();
             renderizarCarrinho();
-            const x = document.getElementById("toast"); x.className = "show"; setTimeout(() => x.className = "", 2000);
+            if (mercadoAtualId) abrirMercado(mercadoAtualId);
+            const x = document.getElementById("toast"); x.className = "show"; setTimeout(() => x.className = x.className.replace("show", ""), 2000);
         }
 
         function renderizarCarrinho() {
             const cont = document.getElementById('resumo-carrinho');
             const vazio = document.getElementById('carrinho-vazio');
-            const shareArea = document.getElementById('area-compartilhar');
-            if(minhaLista.length === 0) { cont.innerHTML = ''; vazio.classList.remove('hidden'); shareArea.classList.add('hidden'); return; }
-            vazio.classList.add('hidden'); shareArea.classList.remove('hidden');
-            
+            const btnLimpar = document.getElementById('btn-limpar-container');
+            if(minhaLista.length === 0) { cont.innerHTML = ''; vazio.classList.remove('hidden'); btnLimpar.classList.add('hidden'); return; }
+            vazio.classList.add('hidden'); btnLimpar.classList.remove('hidden');
             let totais = { M1: 0, M2: 0, M3: 0 };
             minhaLista.forEach(p => { totais.M1 += (p.precoM1 * p.quantidade); totais.M2 += (p.precoM2 * p.quantidade); totais.M3 += (p.precoM3 * p.quantidade); });
             const minTotal = Math.min(totais.M1, totais.M2, totais.M3);
-
             cont.innerHTML = mercados.map(m => `
-                <div class="bg-white rounded-3xl shadow-sm border p-4 flex justify-between items-center ${totais[m.id] === minTotal ? 'ring-2 ring-green-500 border-transparent' : ''}">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-sm">${m.nome}</h3>
-                        <p class="text-[9px] text-gray-400 font-bold uppercase">${minhaLista.length} itens na lista</p>
+                <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                    <div onclick="toggleDetalhes('${m.id}')" class="p-4 flex justify-between items-center cursor-pointer active:bg-slate-50">
+                        <div><h3 class="font-bold text-gray-800 text-sm">${m.nome}</h3><p class="text-[10px] text-gray-400">${minhaLista.length} itens</p></div>
+                        <div class="text-right"><p class="text-lg font-black ${totais[m.id] === minTotal ? 'text-green-600' : 'text-gray-400'}">R$ ${totais[m.id].toFixed(2)}</p></div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-lg font-black ${totais[m.id] === minTotal ? 'text-green-600' : 'text-slate-400'}">R$ ${totais[m.id].toFixed(2)}</p>
-                        ${totais[m.id] === minTotal ? '<span class="text-[8px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">ECONOMIA</span>' : ''}
+                    <div id="detalhes-${m.id}" class="hidden bg-slate-50 p-4 border-t divide-y divide-slate-200 item-detalhe">
+                        ${minhaLista.map(p => `
+                            <div class="py-2 flex justify-between items-center text-xs">
+                                <span>${p.nome} (${p.marca}) <b class="text-blue-600 ml-1">(${p.quantidade})</b></span>
+                                <div class="flex items-center gap-4"><span class="font-bold">R$ ${(p[`preco${m.id}`] * p.quantidade).toFixed(2)}</span><button onclick="event.stopPropagation(); removerItemEspecifico(${p.id})" class="text-red-400 p-1"><i class="fas fa-trash-alt"></i></button></div>
+                            </div>`).join('')}
                     </div>
                 </div>`).join('');
-            
-            document.getElementById("qrcode").innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 100, height: 100 });
         }
 
-        function filtrarProdutos() {
-            const termo = document.getElementById('mainSearch').value.toLowerCase();
-            renderizarHome(produtos.filter(p => p.nome.toLowerCase().includes(termo)));
+        function abrirMercado(id) { 
+            mercadoAtualId = id;
+            const m = mercados.find(merc => merc.id === id); 
+            document.getElementById('lista-mercados').classList.add('hidden'); 
+            document.getElementById('detalhe-mercado').classList.remove('hidden'); 
+            document.getElementById('mercado-header-info').innerHTML = `<div class="bg-blue-700 p-4 rounded-xl text-white shadow-md"><h3 class="font-bold">${m.nome}</h3></div>`; 
+            document.getElementById('produtos-mercado-especifico').innerHTML = produtos.map(p => {
+                const itemNaLista = minhaLista.find(item => item.id === p.id);
+                const qtd = itemNaLista ? itemNaLista.quantidade : 0;
+                return `<div class="bg-white p-3 rounded-lg border flex justify-between items-center text-sm shadow-sm"><div class="flex flex-col"><span class="font-medium text-gray-800">${p.nome}</span><span class="text-[10px] text-gray-400">${p.marca}</span></div><div class="flex items-center gap-4"><span class="font-bold text-blue-600">R$ ${p[`preco${id}`].toFixed(2)}</span>${renderSeletorQtd(p.id, qtd, true)}</div></div>`;
+            }).join(''); 
         }
 
-        function showTab(id, el) { 
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => { b.classList.add('text-gray-400'); b.classList.remove('active'); });
-            document.getElementById('tab-' + id).classList.add('active');
-            el.classList.add('active'); el.classList.remove('text-gray-400');
-            if(id === 'carrinho') renderizarCarrinho();
-        }
+        function voltarMercados() { mercadoAtualId = null; document.getElementById('lista-mercados').classList.remove('hidden'); document.getElementById('detalhe-mercado').classList.add('hidden'); }
+        function limparLista() { minhaLista = []; atualizarTelas(); }
+        function toggleDetalhes(id) { document.getElementById('detalhes-' + id).classList.toggle('hidden'); }
+        function showTab(id, el) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(b => { b.classList.add('text-gray-400'); b.classList.remove('active'); }); document.getElementById('tab-' + id).classList.add('active'); el.classList.add('active'); el.classList.remove('text-gray-400'); if(id === 'mercados') renderizarMercados(); }
+        function renderizarMercados() { const cont = document.getElementById('lista-mercados'); cont.innerHTML = mercados.map(m => `<div onclick="abrirMercado('${m.id}')" class="bg-white p-4 rounded-xl border flex justify-between items-center cursor-pointer active:bg-slate-50 transition"><span class="font-bold text-gray-700">${m.nome}</span><i class="fas fa-chevron-right text-gray-200"></i></div>`).join(''); }
 
-        function limparLista() { if(confirm("Deseja apagar sua lista?")) { minhaLista = []; salvar(); atualizar(); } }
-
-        renderizarHome(produtos);
+        renderizarHome(produtos, false);
+        renderizarMercados();
     </script>
 </body>
 </html>
-
