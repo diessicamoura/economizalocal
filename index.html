@@ -109,18 +109,10 @@
     </div>
 
     <script>
-        // FUNÇÃO PARA ENTRAR NO APP
-        function entrarNoApp() {
-            const overlay = document.getElementById('welcome-overlay');
-            overlay.style.opacity = '0';
-            setTimeout(() => {
-                overlay.style.display = 'none';
-            }, 500);
-        }
-
         const URL_PLANILHA = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRbDOvQmDzzlrQusXFtXXwq0y2yYkhX9I3t-Q5AukcU-MsZ_uEMQGsGw5ZKllOyVgtSfPu_gbZU4YVS/pub?output=csv';
 
         let produtos = [];
+        // LISTA DOS 9 MERCADOS
         const mercados = [
             { id: 'M1', nome: "Copagril" }, { id: 'M2', nome: "Waimman" }, { id: 'M3', nome: "Rimava" },
             { id: 'M4', nome: "Allmayer" }, { id: 'M5', nome: "Gatti" }, { id: 'M6', nome: "Moisés" },
@@ -131,10 +123,12 @@
 
         async function carregarDadosDaPlanilha() {
             try {
+                // Adiciona um parâmetro de tempo para evitar cache do navegador
                 const resposta = await fetch(URL_PLANILHA + '&t=' + new Date().getTime());
                 const texto = await resposta.text();
                 const linhas = texto.split(/\r?\n/);
                 
+                // Pega a data de atualização na Coluna O (índice 14)
                 const cabecalho = linhas[0].split(/[,;]/);
                 document.getElementById('container-data').innerHTML = `<i class="fas fa-clock"></i> Atualizado em: ${cabecalho[14] || 'Hoje'}`;
 
@@ -149,6 +143,7 @@
                         promo: col[12] ? col[12].trim().toUpperCase() === 'TRUE' : false
                     };
 
+                    // Preenche os preços de M1 a M9 dinamicamente
                     mercados.forEach((m, i) => {
                         p[`preco${m.id}`] = parseFloat((col[3 + i] || "0").replace(',', '.'));
                     });
@@ -193,6 +188,7 @@
                 const minP = Math.min(...precosValidos);
 
                 if(isBusca) {
+                    // Visão detalhada na busca (compara todos)
                     geralCont.innerHTML += `
                         <div class="bg-white p-4 rounded-2xl border-2 border-blue-50 shadow-md">
                             <div class="flex justify-between items-start mb-3">
@@ -210,6 +206,7 @@
                             </div>
                         </div>`;
                 } else {
+                    // Visão resumida na home
                     const mIdeal = mercados.find(m => p[`preco${m.id}`] === minP);
                     geralCont.innerHTML += `
                         <div class="bg-white p-3 rounded-xl border flex justify-between items-center shadow-sm">
@@ -269,10 +266,9 @@
             
             cont.innerHTML = mercados.map(m => {
                 const totalM = minhaLista.reduce((acc, p) => acc + (p[`preco${m.id}`] * p.quantidade), 0);
-                if (totalM === 0) return '';
                 return `
                 <div class="bg-white rounded-2xl shadow-sm border p-4 flex justify-between items-center">
-                    <div><h3 class="font-bold text-gray-800 text-sm">${m.nome}</h3><p class="text-[10px] text-gray-400">${minhaLista.filter(p => p[`preco${m.id}`] > 0).length} itens disponíveis</p></div>
+                    <div><h3 class="font-bold text-gray-800 text-sm">${m.nome}</h3><p class="text-[10px] text-gray-400">${minhaLista.length} itens na lista</p></div>
                     <div class="text-right"><p class="text-lg font-black text-blue-600">R$ ${totalM.toFixed(2)}</p></div>
                 </div>`;
             }).join('');
