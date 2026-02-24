@@ -140,7 +140,7 @@
                         id: parseInt(col[0]),
                         nome: col[1],
                         marca: col[2],
-                        promo: col[12] ? col[12].trim().toUpperCase() === 'PROMOCAO' : NORMAL
+                        promo: col[12] ? col[12].trim().toUpperCase() === 'PROMOCAO' : false
                     };
                     mercados.forEach((m, i) => {
                         p[`preco${m.id}`] = parseFloat((col[3 + i] || "0").replace(',', '.'));
@@ -315,8 +315,11 @@
                 return `
                 <div class="bg-white p-3 rounded-lg border flex justify-between items-center text-sm shadow-sm">
                     <div class="flex-1">
-                        <span class="font-medium text-gray-800">${p.nome}</span>
-                        <p class="text-[11px] font-bold text-blue-600">R$ ${p[`preco${id}`].toFixed(2)}</p>
+                        <div class="flex flex-col">
+                            <span class="font-medium text-gray-800">${p.nome}</span>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase">${p.marca}</span>
+                        </div>
+                        <p class="text-[11px] font-bold text-blue-600 mt-1">R$ ${p[`preco${id}`].toFixed(2)}</p>
                     </div>
                     ${renderSeletorQtd(p.id, qtd)}
                 </div>`;
