@@ -7,11 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Estilos da Tela de Boas-Vindas */
         #welcome-screen {
             position: fixed;
             inset: 0;
-            background: #1d4ed8; /* blue-700 */
+            background: #1d4ed8;
             z-index: 9999;
             display: flex;
             flex-direction: column;
@@ -22,7 +21,6 @@
             text-align: center;
             padding: 20px;
         }
-
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .nav-btn.active { color: #059669; border-top: 3px solid #059669; }
@@ -63,8 +61,7 @@
                 <h1 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-shopping-basket"></i> EconomizaLocal</h1>
                 <button onclick="carregarDadosDaPlanilha()" class="text-white/80 hover:text-white transition"><i class="fas fa-sync-alt text-sm"></i></button>
             </div>
-            <div id="container-data" class="mb-3 text-[10px] text-blue-100 flex items-center gap-1 italic">
-                </div>
+            <div id="container-data" class="mb-3 text-[10px] text-blue-100 flex items-center gap-1 italic"></div>
             <div class="relative">
                 <input type="text" id="mainSearch" onkeyup="filtrarProdutos()" placeholder="Pesquise produtos..." 
                     class="w-full p-2.5 pl-10 rounded-xl text-gray-800 text-sm focus:ring-2 focus:ring-green-400 outline-none shadow-md">
@@ -109,13 +106,10 @@
     </div>
 
     <script>
-        // Função para fechar a tela de boas-vindas
         function iniciarApp() {
             const screen = document.getElementById('welcome-screen');
             screen.style.opacity = '0';
-            setTimeout(() => {
-                screen.style.visibility = 'hidden';
-            }, 500);
+            setTimeout(() => { screen.style.visibility = 'hidden'; }, 500);
         }
 
         const URL_PLANILHA = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRbDOvQmDzzlrQusXFtXXwq0y2yYkhX9I3t-Q5AukcU-MsZ_uEMQGsGw5ZKllOyVgtSfPu_gbZU4YVS/pub?output=csv';
@@ -154,9 +148,7 @@
 
                 filtrarProdutos();
                 renderizarMercados();
-            } catch (erro) {
-                console.error("Erro:", erro);
-            }
+            } catch (erro) { console.error("Erro:", erro); }
         }
 
         function renderizarHome(listaParaExibir, isBusca) {
@@ -239,6 +231,7 @@
             if (item) item.quantidade++;
             else { const p = produtos.find(prod => prod.id === id); minhaLista.push({ ...p, quantidade: 1 }); }
             atualizarTelas();
+            if(mercadoAtualId) abrirMercado(mercadoAtualId); // Recarrega se estiver na aba de mercado
         }
 
         function removerItemEspecifico(id) { 
@@ -248,6 +241,7 @@
                 else minhaLista = minhaLista.filter(i => i.id !== id);
             }
             atualizarTelas();
+            if(mercadoAtualId) abrirMercado(mercadoAtualId); // Recarrega se estiver na aba de mercado
         }
 
         function atualizarTelas() {
@@ -283,19 +277,38 @@
         }
 
         function abrirMercado(id) { 
+            mercadoAtualId = id;
             const m = mercados.find(merc => merc.id === id); 
             document.getElementById('lista-mercados').classList.add('hidden'); 
             document.getElementById('detalhe-mercado').classList.remove('hidden'); 
             document.getElementById('mercado-header-info').innerHTML = `<div class="bg-blue-700 p-4 rounded-xl text-white shadow-md"><h3 class="font-bold">${m.nome}</h3></div>`; 
-            document.getElementById('produtos-mercado-especifico').innerHTML = produtos.map(p => `
+            
+            document.getElementById('produtos-mercado-especifico').innerHTML = produtos.map(p => {
+                const itemNaLista = minhaLista.find(item => item.id === p.id);
+                const qtd = itemNaLista ? itemNaLista.quantidade : 0;
+                return `
                 <div class="bg-white p-3 rounded-lg border flex justify-between items-center text-sm shadow-sm">
-                    <span>${p.nome}</span>
-                    <span class="font-bold text-blue-600">R$ ${p[`preco${id}`].toFixed(2)}</span>
-                </div>`).join(''); 
+                    <div class="flex-1">
+                        <span class="font-medium text-gray-800">${p.nome}</span>
+                        <p class="text-[11px] font-bold text-blue-600">R$ ${p[`preco${id}`].toFixed(2)}</p>
+                    </div>
+                    ${renderSeletorQtd(p.id, qtd)}
+                </div>`;
+            }).join(''); 
         }
 
-        function voltarMercados() { document.getElementById('lista-mercados').classList.remove('hidden'); document.getElementById('detalhe-mercado').classList.add('hidden'); }
-        function limparLista() { minhaLista = []; atualizarTelas(); }
+        function voltarMercados() { 
+            mercadoAtualId = null;
+            document.getElementById('lista-mercados').classList.remove('hidden'); 
+            document.getElementById('detalhe-mercado').classList.add('hidden'); 
+        }
+
+        function limparLista() { 
+            minhaLista = []; 
+            atualizarTelas(); 
+            if(mercadoAtualId) abrirMercado(mercadoAtualId);
+        }
+
         function showTab(id, el) { 
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
             document.querySelectorAll('.nav-btn').forEach(b => { b.classList.add('text-gray-400'); b.classList.remove('active'); }); 
