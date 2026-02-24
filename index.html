@@ -6,10 +6,6 @@
     <title>EconomizaLocal - Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-
     <style>
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -28,6 +24,37 @@
     </style>
 </head>
 <body class="bg-slate-50 font-sans">
+
+    <div id="login-screen" class="fixed inset-0 bg-blue-700 z-[100] flex flex-col items-center justify-center p-6 text-white transition-all duration-500">
+        <div class="w-full max-w-md space-y-8 text-center">
+            <div class="mb-8">
+                <i class="fas fa-shopping-basket text-6xl text-green-400 mb-4"></i>
+                <h2 class="text-3xl font-bold italic">EconomizaLocal</h2>
+                <p class="text-blue-100 text-sm">Entre com seu celular para continuar</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow-2xl space-y-4">
+                <div id="etapa-numero">
+                    <input type="tel" id="login-telefone" placeholder="(00) 00000-0000" 
+                        class="w-full p-4 rounded-xl text-gray-800 bg-slate-100 outline-none border-2 focus:border-green-400 text-center text-xl font-bold">
+                    <div id="recaptcha-container" class="mt-4"></div>
+                    <button onclick="enviarCodigoSMS()" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition shadow-lg">
+                        RECEBER CÓDIGO SMS
+                    </button>
+                </div>
+
+                <div id="etapa-codigo" class="hidden">
+                    <input type="number" id="codigo-sms" placeholder="000000" 
+                        class="w-full p-4 rounded-xl text-gray-800 bg-slate-100 outline-none border-2 focus:border-blue-400 text-center text-2xl tracking-widest font-bold">
+                    <button onclick="confirmarCodigo()" class="w-full mt-4 bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg">
+                        CONFIRMAR E ENTRAR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-content" class="hidden opacity-0 transition-opacity duration-700">
 
     <div id="app-content">
         <div id="toast">LISTA ATUALIZADA</div>
