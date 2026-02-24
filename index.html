@@ -36,7 +36,7 @@
             <div id="container-data" class="mb-3 text-[10px] text-blue-100 flex items-center gap-1 italic">
                 </div>
             <div class="relative">
-                <input type="text" id="mainSearch" onkeyup="filtrarProdutos()" placeholder="Pesquise produtos..." 
+                <input type="text" id="mainSearch" onkeyup="filtrarProdutos()" placeholder="Pesquise: leite, carne, arroz..." 
                     class="w-full p-2.5 pl-10 rounded-xl text-gray-800 text-sm focus:ring-2 focus:ring-green-400 outline-none shadow-md">
                 <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
             </div>
@@ -53,7 +53,7 @@
             </section>
             
             <section id="tab-mercados" class="tab-content">
-                <div id="lista-mercados" class="grid grid-cols-1 gap-3"></div>
+                <div id="lista-mercados" class="grid gap-3"></div>
                 <div id="detalhe-mercado" class="hidden">
                     <button onclick="voltarMercados()" class="text-blue-600 font-bold mb-4 text-xs uppercase"><i class="fas fa-arrow-left"></i> Voltar</button>
                     <div id="mercado-header-info" class="mb-4"></div>
@@ -83,9 +83,9 @@
 
         let produtos = [];
         const mercados = [
-            { id: 'M1', nome: "Copagril" }, { id: 'M2', nome: "Waimman" }, { id: 'M3', nome: "Rimava" },
-            { id: 'M4', nome: "Allmayer" }, { id: 'M5', nome: "Gatti" }, { id: 'M6', nome: "Moisés" },
-            { id: 'M7', nome: "Círculo" }, { id: 'M8', nome: "Rondon" }, { id: 'M9', nome: "Eco" }
+            { id: 'M1', nome: "Copagril" }, 
+            { id: 'M2', nome: "Waimman" }, 
+            { id: 'M3', nome: "Rimava" }
         ];
         let minhaLista = [];
         let mercadoAtualId = null;
@@ -96,35 +96,29 @@
                 const texto = await resposta.text();
                 const linhas = texto.split(/\r?\n/);
                 
+                // Pega a data de atualização da Coluna I (índice 8) na linha do cabeçalho
                 const colunasCabecalho = linhas[0].split(/[,;]/);
-                // Pegando data da Coluna O (índice 14) para dar espaço aos novos preços
-                const dataPlanilha = colunasCabecalho[14] || "Atualizando...";
+                const dataPlanilha = colunasCabecalho[8] || "Não informada";
                 document.getElementById('container-data').innerHTML = `<i class="fas fa-clock"></i> Preços atualizados em: ${dataPlanilha}`;
 
                 produtos = linhas.slice(1).map(linha => {
                     const col = linha.split(/[,;]/);
                     if (col.length < 6 || !col[0]) return null;
-                    
-                    let pObj = {
+                    return {
                         id: parseInt(col[0]),
                         nome: col[1],
                         marca: col[2],
-                        promo: col[12] ? col[12].trim().toUpperCase() === 'TRUE' : false // Promo agora na coluna M
+                        precoM1: parseFloat(col[3].replace(',', '.')),
+                        precoM2: parseFloat(col[4].replace(',', '.')),
+                        precoM3: parseFloat(col[5].replace(',', '.')),
+                        promo: col[6] ? col[6].trim().toUpperCase() === 'TRUE' : false
                     };
-                    
-                    // Mapeia dinamicamente os 9 preços (Colunas D até L da planilha)
-                    mercados.forEach((m, index) => {
-                        let valorRaw = col[3 + index] || "0";
-                        pObj[`preco${m.id}`] = parseFloat(valorRaw.replace(',', '.'));
-                    });
-                    
-                    return pObj;
                 }).filter(item => item !== null);
 
                 filtrarProdutos();
                 renderizarMercados();
             } catch (erro) {
-                console.error("Erro:", erro);
+                console.error("Erro ao carregar dados:", erro);
             }
         }
 
@@ -137,13 +131,13 @@
                 document.getElementById('secao-promocoes').classList.remove('hidden');
                 promoCont.innerHTML = '';
                 produtos.filter(p => p.promo).forEach(p => {
-                    const precos = mercados.map(m => p[`preco${m.id}`]);
-                    const minP = Math.min(...precos.filter(v => v > 0));
+                    const precos = [p.precoM1, p.precoM2, p.precoM3];
+                    const minP = Math.min(...precos);
                     const idx = precos.indexOf(minP);
                     promoCont.innerHTML += `
-                        <div class="promo-card min-w-[160px] p-3 rounded-2xl border border-blue-100 shadow-sm">
+                        <div class="promo-card min-w-[180px] p-3 rounded-2xl border border-blue-100 shadow-sm">
                             <h4 class="font-bold text-gray-800 text-xs truncate">${p.nome}</h4>
-                            <p class="text-[9px] text-blue-600 font-bold uppercase mb-1">${mercados[idx].nome}</p>
+                            <p class="text-[9px] text-blue-600 font-bold uppercase mb-1">${p.marca} • ${mercados[idx].nome}</p>
                             <p class="text-green-600 font-black text-base">R$ ${minP.toFixed(2)}</p>
                         </div>`;
                 });
@@ -154,36 +148,42 @@
             listaParaExibir.forEach(p => {
                 const itemNaLista = minhaLista.find(item => item.id === p.id);
                 const qtd = itemNaLista ? itemNaLista.quantidade : 0;
-                const precosValidos = mercados.map(m => p[`preco${m.id}`]).filter(v => v > 0);
-                const minP = Math.min(...precosValidos);
+                const precos = [p.precoM1, p.precoM2, p.precoM3];
+                const minP = Math.min(...precos);
 
+                // Quando pesquisado, mostra a comparação detalhada
                 if (isBusca) {
                     geralCont.innerHTML += `
                         <div class="bg-white p-4 rounded-2xl border-2 border-blue-50 shadow-md">
                             <div class="flex justify-between items-start mb-3">
-                                <div><h4 class="font-black text-gray-800 text-sm uppercase">${p.nome}</h4><p class="text-[10px] text-gray-400 font-bold uppercase">${p.marca}</p></div>
+                                <div>
+                                    <h4 class="font-black text-gray-800 text-sm uppercase">${p.nome}</h4>
+                                    <p class="text-[10px] text-gray-400 font-bold uppercase">${p.marca}</p>
+                                </div>
                                 ${renderSeletorQtd(p.id, qtd)}
                             </div>
                             <div class="grid grid-cols-3 gap-2 pt-3 border-t border-dashed">
-                                ${mercados.map(m => {
-                                    const valor = p[`preco${m.id}`];
-                                    const isMin = valor === minP && valor > 0;
+                                ${mercados.map((m, i) => {
+                                    const valor = p[`precoM${i+1}`];
+                                    const isMin = valor === minP;
                                     return `
-                                        <div class="text-center p-1.5 rounded-lg ${isMin ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-100'}">
-                                            <p class="text-[7px] text-gray-500 font-bold uppercase truncate">${m.nome}</p>
-                                            <p class="text-[11px] font-black ${isMin ? 'text-green-600' : 'text-gray-700'}">R$ ${valor.toFixed(2)}</p>
-                                        </div>`;
+                                        <div class="text-center p-2 rounded-xl ${isMin ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-100'}">
+                                            <p class="text-[8px] text-gray-500 font-bold uppercase truncate">${m.nome}</p>
+                                            <p class="text-xs font-black ${isMin ? 'text-green-600' : 'text-gray-700'}">R$ ${valor.toFixed(2)}</p>
+                                        </div>
+                                    `;
                                 }).join('')}
                             </div>
                         </div>`;
                 } else {
-                    const idxMin = mercados.findIndex(m => p[`preco${m.id}`] === minP);
+                    // Visualização padrão da lista (compacta)
+                    const idxMin = precos.indexOf(minP);
                     geralCont.innerHTML += `
                         <div class="bg-white p-3 rounded-xl border flex justify-between items-center shadow-sm">
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1">
                                     <h4 class="text-sm font-bold text-gray-800">${p.nome}</h4>
-                                    <span class="bg-blue-50 text-blue-700 border border-blue-200/30 text-[8px] px-2 py-0.5 rounded-full font-bold uppercase">${mercados[idxMin].nome}</span>
+                                    <span class="bg-blue-50 text-blue-700 border border-blue-200/30 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase">${mercados[idxMin].nome}</span>
                                 </div>
                                 <p class="text-[10px] text-gray-400">${p.marca} • Menor: <span class="text-green-600 font-bold">R$ ${minP.toFixed(2)}</span></p>
                             </div>
@@ -194,8 +194,11 @@
         }
 
         function renderSeletorQtd(id, qtd, estiloMini = false) {
-            if (qtd === 0) return `<button onclick="adicionarLista(${id})" class="bg-green-600 text-white text-[10px] px-3 py-2 rounded-lg font-bold uppercase shadow-sm active:scale-95 transition">Adicionar</button>`;
-            return `<div class="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border">
+            if (qtd === 0) {
+                return `<button onclick="adicionarLista(${id})" class="${estiloMini ? 'bg-green-600 text-white w-8 h-8 rounded-lg' : 'bg-green-600 text-white text-[10px] px-3 py-2 rounded-lg'} font-bold uppercase shadow-sm active:scale-95 transition">Adicionar</button>`;
+            }
+            return `
+            <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border">
                 <button onclick="removerItemEspecifico(${id})" class="w-7 h-7 flex items-center justify-center bg-white rounded-md text-red-500 shadow-sm active:scale-75"><i class="fas ${qtd === 1 ? 'fa-trash-alt' : 'fa-minus'} text-[10px]"></i></button>
                 <span class="text-xs font-black text-blue-700 min-w-[15px] text-center">${qtd}</span>
                 <button onclick="adicionarLista(${id})" class="w-7 h-7 flex items-center justify-center bg-green-600 rounded-md text-white shadow-sm active:scale-75"><i class="fas fa-plus text-[10px]"></i></button>
@@ -244,12 +247,13 @@
             if(minhaLista.length === 0) { cont.innerHTML = ''; vazio.classList.remove('hidden'); btnLimpar.classList.add('hidden'); return; }
             vazio.classList.add('hidden'); btnLimpar.classList.remove('hidden');
             
-            let totais = {};
-            mercados.forEach(m => totais[m.id] = 0);
+            let totais = { M1: 0, M2: 0, M3: 0 };
             minhaLista.forEach(p => { 
-                mercados.forEach(m => { totais[m.id] += (p[`preco${m.id}`] * p.quantidade); });
+                totais.M1 += (p.precoM1 * p.quantidade); 
+                totais.M2 += (p.precoM2 * p.quantidade); 
+                totais.M3 += (p.precoM3 * p.quantidade); 
             });
-            const minTotal = Math.min(...Object.values(totais).filter(v => v > 0));
+            const minTotal = Math.min(totais.M1, totais.M2, totais.M3);
 
             cont.innerHTML = mercados.map(m => `
                 <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
@@ -268,6 +272,7 @@
         }
 
         function abrirMercado(id) { 
+            mercadoAtualId = id;
             const m = mercados.find(merc => merc.id === id); 
             document.getElementById('lista-mercados').classList.add('hidden'); 
             document.getElementById('detalhe-mercado').classList.remove('hidden'); 
@@ -275,21 +280,19 @@
             document.getElementById('produtos-mercado-especifico').innerHTML = produtos.map(p => {
                 const itemNaLista = minhaLista.find(item => item.id === p.id);
                 const qtd = itemNaLista ? itemNaLista.quantidade : 0;
-                return `<div class="bg-white p-3 rounded-lg border flex justify-between items-center text-sm shadow-sm">
-                    <div class="flex flex-col"><span class="font-medium text-gray-800">${p.nome}</span><span class="text-[10px] text-gray-400">${p.marca}</span></div>
-                    <div class="flex items-center gap-4"><span class="font-bold text-blue-600">R$ ${p[`preco${id}`].toFixed(2)}</span>${renderSeletorQtd(p.id, qtd, true)}</div>
-                </div>`;
+                return `<div class="bg-white p-3 rounded-lg border flex justify-between items-center text-sm shadow-sm"><div class="flex flex-col"><span class="font-medium text-gray-800">${p.nome}</span><span class="text-[10px] text-gray-400">${p.marca}</span></div><div class="flex items-center gap-4"><span class="font-bold text-blue-600">R$ ${p[`preco${id}`].toFixed(2)}</span>${renderSeletorQtd(p.id, qtd, true)}</div></div>`;
             }).join(''); 
         }
 
-        function voltarMercados() { document.getElementById('lista-mercados').classList.remove('hidden'); document.getElementById('detalhe-mercado').classList.add('hidden'); }
+        function voltarMercados() { mercadoAtualId = null; document.getElementById('lista-mercados').classList.remove('hidden'); document.getElementById('detalhe-mercado').classList.add('hidden'); }
         function limparLista() { minhaLista = []; atualizarTelas(); }
         
         function showTab(id, el) { 
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
             document.querySelectorAll('.nav-btn').forEach(b => { b.classList.add('text-gray-400'); b.classList.remove('active'); }); 
             document.getElementById('tab-' + id).classList.add('active'); 
-            el.classList.add('active'); el.classList.remove('text-gray-400'); 
+            el.classList.add('active'); 
+            el.classList.remove('text-gray-400'); 
             if(id === 'mercados') renderizarMercados(); 
         }
 
