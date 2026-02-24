@@ -11,6 +11,8 @@
         .tab-content.active { display: block; }
         .nav-btn.active { color: #059669; border-top: 3px solid #059669; }
         .promo-card { background: linear-gradient(135deg, #eff6ff 0%, #dcfce7 100%); }
+        .item-detalhe { animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         #toast {
             visibility: hidden; min-width: 250px; background-color: #059669; color: #fff;
             text-align: center; border-radius: 12px; padding: 16px; position: fixed;
