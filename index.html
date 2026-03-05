@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>EconomizaLocal - Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -129,34 +126,64 @@
             { id: 'M9', nome: "Super Favorito", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTKfkjZ9_Opghojp_3ftEZpKd-q6DXNomEeJ46f8aQnzXAv5LhPtWjjz_5ryLxUHI3eU2SpskBp3Y3s/pub?output=csv' }
         ];
 
-        const APP_VERSION = '2026.03.04-2';
+        const CHAVE_LISTA_STORAGE = 'economizalocal-minha-lista';
         let produtos = [];
-        let minhaLista = [];
+        let minhaLista = carregarListaDoStorage();
         let mercadoAtualId = null;
 
-        function detectarDelimitador(linha) {
-            const semicolons = (linha.match(/;/g) || []).length;
-            const commas = (linha.match(/,/g) || []).length;
-            return semicolons > commas ? ';' : ',';
+        function carregarListaDoStorage() {
+            try {
+                const listaSalva = JSON.parse(localStorage.getItem(CHAVE_LISTA_STORAGE) || '[]');
+                if (!Array.isArray(listaSalva)) return [];
+                return listaSalva
+                    .map(item => ({ id: Number(item.id), quantidade: Math.max(1, Number(item.quantidade) || 1) }))
+                    .filter(item => Number.isFinite(item.id));
+            } catch {
+                return [];
+            }
         }
 
-        function parseLinhaCsv(linha, delimitador) {
+        function salvarListaNoStorage() {
+            const listaParaSalvar = minhaLista.map(item => ({ id: item.id, quantidade: item.quantidade }));
+            localStorage.setItem(CHAVE_LISTA_STORAGE, JSON.stringify(listaParaSalvar));
+        }
+
+        function sincronizarListaComProdutos() {
+            minhaLista = minhaLista
+                .map(item => {
+                    const produtoAtual = produtos.find(prod => prod.id === item.id);
+                    return produtoAtual ? { ...produtoAtual, quantidade: item.quantidade } : null;
+                })
+                .filter(Boolean);
+            salvarListaNoStorage();
+        }
+
+        function contarSeparadoresForaDeAspas(textoLinha, separador) {
+            let dentroAspas = false;
+            let contador = 0;
+
+            for (const char of textoLinha) {
+                if (char === '"') dentroAspas = !dentroAspas;
+                if (char === separador && !dentroAspas) contador++;
+            }
+            return contador;
+        }
+
+        function parseLinhaCSV(linha, separador) {
             const resultado = [];
             let atual = '';
-            let emAspas = false;
+            let dentroAspas = false;
 
             for (let i = 0; i < linha.length; i++) {
                 const char = linha[i];
-                const prox = linha[i + 1];
-
                 if (char === '"') {
-                    if (emAspas && prox === '"') {
+                    if (dentroAspas && linha[i + 1] === '"') {
                         atual += '"';
                         i++;
                     } else {
-                        emAspas = !emAspas;
+                        dentroAspas = !dentroAspas;
                     }
-                } else if (char === delimitador && !emAspas) {
+                } else if (char === separador && !dentroAspas) {
                     resultado.push(atual.trim());
                     atual = '';
                 } else {
@@ -171,25 +198,22 @@
         async function carregarDadosDaPlanilha() {
             try {
                 const mapaProdutos = {};
-                const mercadosComFalha = [];
-                let mercadosProcessados = 0;
 
                 for (const m of mercados) {
                     if(!m.url || m.url.includes('https://docs.google.com/spreadsheets/d/e/2PACX-1vRbDOvQmDzzlrQusXFtXXwq0y2yYkhX9I3t-Q5AukcU-MsZ_uEMQGsGw5ZKllOyVgtSfPu_gbZU4YVS/pub?output=csv')) continue;
 
                     try {
-                        const resposta = await fetch(m.url + '&t=' + new Date().getTime(), { cache: 'no-store' });
-                        if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
-
+                        const resposta = await fetch(m.url + '&t=' + new Date().getTime());
                         const texto = await resposta.text();
                         const linhas = texto.split(/\r?\n/).filter(Boolean);
-                        if (linhas.length <= 1) continue;
+                        if (linhas.length < 2) return;
 
-                        const delimitador = detectarDelimitador(linhas[0]);
+                        const cabecalho = linhas[0];
+                        const separador = contarSeparadoresForaDeAspas(cabecalho, ';') >= contarSeparadoresForaDeAspas(cabecalho, ',') ? ';' : ',';
                         const linhasDados = linhas.slice(1);
 
                         linhasDados.forEach(linha => {
-                            const col = parseLinhaCsv(linha, delimitador);
+                            const col = parseLinhaCSV(linha, separador);
                             if (col.length < 4 || !col[0]) return;
 
                             const idProd = col[0].trim();
@@ -203,29 +227,20 @@
                                 };
                                 mercados.forEach(merc => mapaProdutos[idProd][`preco${merc.id}`] = 0);
                             }
-                            const preco = parseFloat((col[3] || '0').replace(',', '.'));
-                            mapaProdutos[idProd][`preco${m.id}`] = Number.isFinite(preco) ? preco : 0;
+                            mapaProdutos[idProd][`preco${m.id}`] = parseFloat((col[3] || "0").replace(',', '.'));
                         });
-
-                        mercadosProcessados++;
                     } catch (e) {
-                        mercadosComFalha.push(m.nome);
                         console.error(`Erro no mercado ${m.nome}:`, e);
                     }
                 }
 
                 produtos = Object.values(mapaProdutos);
-                const statusBase = `<i class="fas fa-clock"></i> Atualizado em: ${new Date().toLocaleString('pt-BR')} · ${produtos.length} produtos · ${mercadosProcessados}/${mercados.length} mercados`;
-                document.getElementById('container-data').innerHTML = mercadosComFalha.length
-                    ? `${statusBase} · Falha: ${mercadosComFalha.join(', ')}`
-                    : statusBase;
-
-                if (produtos.length === 0) {
-                    console.warn('Nenhum produto foi carregado. Verifique o formato da planilha e URLs.');
-                }
-
+                sincronizarListaComProdutos();
+                document.getElementById('container-data').innerHTML = `<i class="fas fa-clock"></i> Atualizado em: ${new Date().toLocaleDateString()}`;
+                
                 filtrarProdutos();
                 renderizarMercados();
+                renderizarCarrinho();
             } catch (erro) { 
                 console.error("Erro Geral:", erro); 
             }
@@ -328,6 +343,7 @@
         }
 
         function atualizarTelas() {
+            salvarListaNoStorage();
             filtrarProdutos();
             renderizarCarrinho();
             const x = document.getElementById("toast"); x.className = "show"; setTimeout(() => x.className = x.className.replace("show", ""), 2000);
@@ -348,50 +364,64 @@
             if(minhaLista.length === 0) { cont.innerHTML = ''; vazio.classList.remove('hidden'); btnLimpar.classList.add('hidden'); return; }
             vazio.classList.add('hidden'); btnLimpar.classList.remove('hidden');
 
-            const mercadosOrdenados = mercados
-                .map(m => ({
-                    ...m,
-                    total: minhaLista.reduce((acc, p) => acc + (p[`preco${m.id}`] * p.quantidade), 0)
-                }))
-                .sort((a, b) => {
-                    if (a.total === 0 && b.total > 0) return 1;
-                    if (b.total === 0 && a.total > 0) return -1;
-                    return a.total - b.total;
-                });
+            const resumoMercados = mercados.map(m => {
+                let totalM = 0;
+                let itensSemPreco = 0;
+                const listaItensHtml = minhaLista.map(p => {
+                    const preco = p[`preco${m.id}`];
+                    const temPreco = preco > 0;
 
-            const primeiroComPreco = mercadosOrdenados.findIndex(m => m.total > 0);
+                    if (temPreco) totalM += preco * p.quantidade;
+                    else itensSemPreco++;
 
-            cont.innerHTML = mercadosOrdenados.map((m, idx) => {
-                const isMaisBarato = idx === primeiroComPreco;
-                const listaItensHtml = minhaLista.map(p => `
-                    <div class="flex justify-between items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-                        <div class="flex-1">
-                            <span class="text-[11px] text-gray-600">${p.quantidade}x ${p.nome} <span class="font-bold">(${p.marca})</span></span>
-                            <p class="text-[10px] text-gray-400">R$ ${(p[`preco${m.id}`] * p.quantidade).toFixed(2)}</p>
+                    return `
+                    <div class="flex justify-between items-center py-2 border-b border-gray-50 last:border-0 gap-2">
+                        <div class="flex-1 min-w-0">
+                            <span class="text-[11px] text-gray-600 block truncate">${p.quantidade}x ${p.nome} <span class="font-bold">(${p.marca})</span></span>
+                            <span class="text-[11px] font-bold ${temPreco ? 'text-gray-800' : 'text-amber-500'} block">${temPreco ? `R$ ${(preco * p.quantidade).toFixed(2)}` : 'Sem preço'}</span>
                         </div>
-                        <button onclick="removerItemEspecifico(${p.id})" class="text-[10px] px-2 py-1 rounded-md border border-red-200 text-red-500 hover:bg-red-50 uppercase font-bold">
-                            Remover 1
-                        </button>
+                        <div class="flex items-center gap-1">
+                            <button onclick="event.stopPropagation(); removerItemEspecifico(${p.id})" class="w-7 h-7 flex items-center justify-center bg-white border border-red-100 rounded-md text-red-500 shadow-sm active:scale-75" title="Excluir 1 item" aria-label="Excluir 1 item">
+                                <i class="fas fa-trash-alt text-[10px]"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); adicionarLista(${p.id})" class="w-7 h-7 flex items-center justify-center bg-green-600 rounded-md text-white shadow-sm active:scale-75" title="Adicionar 1 item">
+                                <i class="fas fa-plus text-[10px]"></i>
+                            </button>
+                        </div>
                     </div>
-                `).join('');
+                `;
+                }).join('');
+
+                return { mercado: m, total: totalM, itensSemPreco, listaItensHtml };
+            }).sort((a, b) => {
+                if (a.itensSemPreco !== b.itensSemPreco) return a.itensSemPreco - b.itensSemPreco;
+                return a.total - b.total;
+            });
+
+            const primeiroMercadoCompleto = resumoMercados.find(r => r.itensSemPreco === 0);
+
+            cont.innerHTML = resumoMercados.map(({ mercado, total, itensSemPreco, listaItensHtml }) => {
+                const destaqueMaisBarato = primeiroMercadoCompleto && mercado.id === primeiroMercadoCompleto.mercado.id
+                    ? `<span class="text-[9px] font-black uppercase bg-green-100 text-green-700 px-2 py-1 rounded-full">Mais barato</span>`
+                    : '';
+
+                const infoCobertura = itensSemPreco > 0
+                    ? `<p class="text-[10px] text-amber-500 font-bold">${itensSemPreco} item(ns) sem preço neste mercado</p>`
+                    : `<p class="text-[10px] text-gray-400">${minhaLista.length} itens na lista</p>`;
 
                 return `
-                <div class="${isMaisBarato ? 'bg-green-50 border-2 border-green-400 shadow-md' : 'bg-white border shadow-sm'} rounded-2xl overflow-hidden">
-                    <div onclick="toggleItensCarrinho('${m.id}')" class="p-4 flex justify-between items-center cursor-pointer ${isMaisBarato ? 'active:bg-green-100' : 'active:bg-gray-50'} transition">
+                <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                    <div onclick="toggleItensCarrinho('${mercado.id}')" class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50 transition">
                         <div>
-                            <h3 class="font-bold ${isMaisBarato ? 'text-green-800' : 'text-gray-800'} text-sm">
-                                ${isMaisBarato ? '🏆 ' : ''}${m.nome}
-                                <i id="icon-arrow-${m.id}" class="fas fa-chevron-down text-[10px] ml-1 ${isMaisBarato ? 'text-green-500' : 'text-gray-400'}"></i>
-                            </h3>
-                            <p class="text-[10px] ${isMaisBarato ? 'text-green-700 font-bold uppercase' : 'text-gray-400'}">
-                                ${isMaisBarato ? 'Mais barato da sua lista' : `${minhaLista.length} itens na lista`}
-                            </p>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-gray-800 text-sm">${mercado.nome} <i id="icon-arrow-${mercado.id}" class="fas fa-chevron-down text-[10px] ml-1 text-gray-400"></i></h3>
+                                ${destaqueMaisBarato}
+                            </div>
+                            ${infoCobertura}
                         </div>
-                        <div class="text-right">
-                            <p class="text-lg font-black ${isMaisBarato ? 'text-green-700' : 'text-blue-600'}">R$ ${m.total.toFixed(2)}</p>
-                        </div>
+                        <div class="text-right"><p class="text-lg font-black text-blue-600">R$ ${total.toFixed(2)}</p></div>
                     </div>
-                    <div id="detalhe-itens-${m.id}" class="detalhe-itens-carrinho ${isMaisBarato ? 'bg-white' : 'bg-slate-50'} px-4 pb-3">
+                    <div id="detalhe-itens-${mercado.id}" class="detalhe-itens-carrinho bg-slate-50 px-4 pb-3">
                         ${listaItensHtml}
                     </div>
                 </div>`;
@@ -453,10 +483,7 @@
             el.classList.add('active'); el.classList.remove('text-gray-400'); 
         }
         
-        window.onload = () => {
-            console.info('EconomizaLocal versão', APP_VERSION);
-            carregarDadosDaPlanilha();
-        };
+        window.onload = carregarDadosDaPlanilha;
     </script>
 </body>
 </html>
