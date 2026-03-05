@@ -299,7 +299,7 @@
                                     id: parseInt(idProd),
                                     nome: col[1],
                                     marca: col[2],
-                                    promo: col[4] ? col[4].trim().toUpperCase() === 'PROMOCAO' : FALSE
+                                    promo: col[4] ? col[4].trim().toUpperCase() === 'PROMOCAO' : false
                                 };
                                 mercados.forEach(merc => mapaProdutos[idProd][`preco${merc.id}`] = 0);
                             }
