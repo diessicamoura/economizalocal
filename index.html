@@ -6,7 +6,7 @@
     <title>EconomizaLocal - Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        <link rel="icon" type="image/png" sizes="32x32" href="./icon-32.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="./icon-32.png?v=3">
     <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png?v=3">
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=3">
     <link rel="manifest" href="./manifest.webmanifest?v=3">
@@ -142,8 +142,8 @@
         let mercadoAtualId = null;
         let timeoutBusca;
         const detalhesCarrinhoAbertos = new Set();
-        let assinaturaPrecosAtual = localStorage.getItem(CHAVE_ASSINATURA_PRECOS) || '';
-        let ultimaAtualizacaoRegistrada = localStorage.getItem(CHAVE_ULTIMA_ATUALIZACAO) || '';
+        let assinaturaPrecosAtual = obterStorage(CHAVE_ASSINATURA_PRECOS, '');
+        let ultimaAtualizacaoRegistrada = obterStorage(CHAVE_ULTIMA_ATUALIZACAO, '');
 
         function buscarComTimeout(url, opcoes = {}, timeoutMs = TEMPO_LIMITE_FETCH_MS) {
             const controller = new AbortController();
@@ -153,9 +153,26 @@
                 .finally(() => clearTimeout(timer));
         }
 
+        function obterStorage(chave, valorPadrao = '') {
+            try {
+                const valor = localStorage.getItem(chave);
+                return valor === null ? valorPadrao : valor;
+            } catch {
+                return valorPadrao;
+            }
+        }
+
+        function definirStorage(chave, valor) {
+            try {
+                localStorage.setItem(chave, valor);
+            } catch {
+                // ignora ambientes sem acesso ao localStorage
+            }
+        }
+
         function carregarListaDoStorage() {
             try {
-                const listaSalva = JSON.parse(localStorage.getItem(CHAVE_LISTA_STORAGE) || '[]');
+                const listaSalva = JSON.parse(obterStorage(CHAVE_LISTA_STORAGE, '[]'));
                 if (!Array.isArray(listaSalva)) return [];
                 return listaSalva
                     .map(item => ({ id: Number(item.id), quantidade: Math.max(1, Number(item.quantidade) || 1) }))
@@ -167,7 +184,7 @@
 
         function salvarListaNoStorage() {
             const listaParaSalvar = minhaLista.map(item => ({ id: item.id, quantidade: item.quantidade }));
-            localStorage.setItem(CHAVE_LISTA_STORAGE, JSON.stringify(listaParaSalvar));
+            definirStorage(CHAVE_LISTA_STORAGE, JSON.stringify(listaParaSalvar));
         }
 
         function sincronizarListaComProdutos() {
@@ -316,9 +333,9 @@
                 const novaAssinaturaPrecos = gerarAssinaturaPrecos(produtos);
                 if (novaAssinaturaPrecos && novaAssinaturaPrecos !== assinaturaPrecosAtual) {
                     assinaturaPrecosAtual = novaAssinaturaPrecos;
-                    localStorage.setItem(CHAVE_ASSINATURA_PRECOS, assinaturaPrecosAtual);
+                    definirStorage(CHAVE_ASSINATURA_PRECOS, assinaturaPrecosAtual);
                     ultimaAtualizacaoRegistrada = new Date().toISOString();
-                    localStorage.setItem(CHAVE_ULTIMA_ATUALIZACAO, ultimaAtualizacaoRegistrada);
+                    definirStorage(CHAVE_ULTIMA_ATUALIZACAO, ultimaAtualizacaoRegistrada);
                 }
 
                 atualizarIndicadorData('ok');
