@@ -6,6 +6,11 @@
     <title>EconomizaLocal - Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="./icon-32.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=3">
+    <link rel="manifest" href="./manifest.webmanifest?v=3">
+    <meta name="theme-color" content="#1d4ed8">
     <style>
         #welcome-screen {
             position: fixed;
@@ -64,8 +69,8 @@
                 <button onclick="carregarDadosDaPlanilha()" aria-label="Atualizar preços" title="Atualizar preços" class="text-white/80 hover:text-white transition"><i class="fas fa-sync-alt text-sm"></i></button>
             </div>
             <div id="container-data" class="mb-3 text-[10px] text-blue-100 flex items-center gap-1 italic">
-                    <i class="fas fa-spinner fa-spin"></i> Carregando preços...
-                </div>
+                <i class="fas fa-spinner fa-spin"></i> Carregando preços...
+            </div>
             <div class="relative">
                 <input type="text" id="mainSearch" onkeyup="filtrarProdutosComDebounce()" placeholder="Pesquise produtos..." aria-label="Pesquisar produtos" autocomplete="off" 
                     class="w-full p-2.5 pl-10 rounded-xl text-gray-800 text-sm focus:ring-2 focus:ring-green-400 outline-none shadow-md">
