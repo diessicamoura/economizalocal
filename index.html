@@ -2,8 +2,14 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>EconomizaLocal - Oficial</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="EconomizaLocal">
+    <meta name="mobile-web-app-capable" content="yes">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/png" sizes="32x32" href="./icon-32.png?v=3">
@@ -11,7 +17,18 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=3">
     <link rel="manifest" href="./manifest.webmanifest?v=3">
     <meta name="theme-color" content="#1d4ed8">
+    
     <style>
+        :root {
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
+        }
+
+        body {
+            padding-bottom: var(--safe-bottom);
+            background-color: #f8fafc;
+        }
+
         #welcome-screen {
             position: fixed;
             inset: 0;
@@ -26,6 +43,17 @@
             text-align: center;
             padding: 20px;
         }
+
+        /* Ajuste do Header para não ficar sob a barra de status do iPhone */
+        header {
+            padding-top: calc(1rem + var(--safe-top));
+        }
+
+        /* Ajuste da Nav para não ficar sobre a barra de gestos do iPhone */
+        nav {
+            padding-bottom: calc(0.5rem + var(--safe-bottom));
+        }
+
         .welcome-cart-wrap {
             width: 180px;
             margin-bottom: 24px;
@@ -90,12 +118,12 @@
         #toast {
             visibility: hidden; min-width: 250px; background-color: #059669; color: #fff;
             text-align: center; border-radius: 12px; padding: 16px; position: fixed;
-            z-index: 100; left: 50%; transform: translateX(-50%); top: 30px; font-weight: bold;
+            z-index: 10000; left: 50%; transform: translateX(-50%); top: calc(40px + var(--safe-top)); font-weight: bold;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadein { from {top: 0; opacity: 0;} to {top: 30px; opacity: 1;} }
-        @keyframes fadeout { from {top: 30px; opacity: 1;} to {top: 0; opacity: 0;} }
+        @keyframes fadein { from {top: 0; opacity: 0;} to {top: calc(40px + var(--safe-top)); opacity: 1;} }
+        @keyframes fadeout { from {top: calc(40px + var(--safe-top)); opacity: 1;} to {top: 0; opacity: 0;} }
         ::-webkit-scrollbar { display: none; }
         .detalhe-itens-carrinho { display: none; }
         .detalhe-itens-carrinho.aberto { display: block; animation: slideDown 0.2s ease-out; }
@@ -136,7 +164,7 @@
             </div>
         </header>
 
-        <main class="px-4 pt-4 pb-28">
+        <main class="px-4 pt-4 pb-32">
             <section id="tab-melhor-preco" class="tab-content active">
                 <div id="secao-promocoes">
                     <h2 class="text-xs font-black text-blue-800 uppercase tracking-widest mb-3 italic">🔥 Promoções da Semana</h2>
@@ -181,7 +209,7 @@
 
         const mercados = [
             { id: 'M1', nome: "Copagril", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRZR9LPUdow0IRmU5_gW8OGjVK_Faj2svOND_t24Swl-iGCl5fVIM1T8aITDtwKQVIH99cVlCacl0Qb/pub?output=csv' },
-            { id: 'M2', nome: "Waimann", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFacFVwUWZH05G-eW5rv7ulXrWG2JzbTU8Je30SM5w_1ATc6hZUcXH2kSZHvpHT6GZc4k4gvPkXHqE/pub?output=csv' },
+            { id: 'M2', nome: "Waimann", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vFacFVwUWZH05G-eW5rv7ulXrWG2JzbTU8Je30SM5w_1ATc6hZUcXH2kSZHvpHT6GZc4k4gvPkXHqE/pub?output=csv' },
             { id: 'M3', nome: "Dilettare", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRyfBLLoi1FHBxGFjQ6IfCCtSJWkVWU-F1q8XBf3DyaYvaLYCigCprhXpUbD6n78iVynFRfN3uRq7pE/pub?output=csv' },
             { id: 'M4', nome: "Allmayer", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZyyTZ_BEpICvBTjP1updcWvGjmutPITHB8YerfSVwlMn1AK43YQB0w2G_zeoLKauZWakt1_dcdrYC/pub?output=csv' },
             { id: 'M5', nome: "Super Cercar", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjKk7LVFzBJ-fMEcafo6OLeIGpGQ4NuX5e8dgn526woGPBeIRG4CAFMExlgqwhQm7YR6lkM_INFsAQ/pub?output=csv' },
@@ -349,7 +377,7 @@
                 const mapaProdutos = {};
 
                 for (const m of mercados) {
-                    if(!m.url || m.url.includes('https://docs.google.com/spreadsheets/d/e/2PACX-1vRbDOvQmDzzlrQusXFtXXwq0y2yYkhX9I3t-Q5AukcU-MsZ_uEMQGsGw5ZKllOyVgtSfPu_gbZU4YVS/pub?output=csv')) continue;
+                    if(!m.url) continue;
 
                     try {
                         const resposta = await buscarComTimeout(m.url + '&t=' + new Date().getTime());
@@ -661,7 +689,7 @@
                 const itemNaLista = minhaLista.find(item => item.id === p.id);
                 const qtd = itemNaLista ? itemNaLista.quantidade : 0;
                 const precoM = p[`preco${id}`];
-                if(precoM <= 0) return ''; // Não mostra produto sem preço no mercado
+                if(precoM <= 0) return '';
                 
                 return `
                 <div class="bg-white p-3 rounded-lg border flex justify-between items-center text-sm shadow-sm">
