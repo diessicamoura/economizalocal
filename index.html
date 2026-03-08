@@ -2,37 +2,16 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EconomizaLocal - Oficial</title>
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="EconomizaLocal">
-    <meta name="mobile-web-app-capable" content="yes">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="icon" type="image/png" sizes="32x32" href="./icon-32.png?v=3">
-    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png?v=3">
-    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=3">
-    <link rel="manifest" href="./manifest.webmanifest?v=3">
-    <meta name="theme-color" content="#1d4ed8">
-    
     <style>
-        :root {
-            --safe-top: env(safe-area-inset-top);
-            --safe-bottom: env(safe-area-inset-bottom);
-        }
-
-        body {
-            padding-bottom: var(--safe-bottom);
-            background-color: #f8fafc;
-        }
-
+        /* Estilos da Tela de Boas-Vindas */
         #welcome-screen {
             position: fixed;
             inset: 0;
-            background: #1d4ed8;
+            background: #1d4ed8; /* blue-700 */
             z-index: 9999;
             display: flex;
             flex-direction: column;
@@ -44,99 +23,29 @@
             padding: 20px;
         }
 
-        /* Ajuste do Header para não ficar sob a barra de status do iPhone */
-        header {
-            padding-top: calc(1rem + var(--safe-top));
-        }
-
-        /* Ajuste da Nav para não ficar sobre a barra de gestos do iPhone */
-        nav {
-            padding-bottom: calc(0.5rem + var(--safe-bottom));
-        }
-
-        .welcome-cart-wrap {
-            width: 180px;
-            margin-bottom: 24px;
-        }
-        .welcome-cart-track {
-            position: relative;
-            height: 92px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.12);
-            overflow: hidden;
-        }
-        .welcome-cart-track::after {
-            content: '';
-            position: absolute;
-            left: 16px;
-            right: 16px;
-            bottom: 18px;
-            height: 4px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.35);
-        }
-        .welcome-cart {
-            position: absolute;
-            left: 16px;
-            top: 20px;
-            color: #ffffff;
-            font-size: 52px;
-            text-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
-            animation: cartDrive 2.2s ease-in-out infinite;
-            transform-origin: center bottom;
-        }
-        .welcome-cart-spark {
-            position: absolute;
-            bottom: 25px;
-            left: 0;
-            width: 10px;
-            height: 10px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.75);
-            filter: blur(0.3px);
-            animation: cartSpark 2.2s ease-in-out infinite;
-        }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .nav-btn.active { color: #059669; border-top: 3px solid #059669; }
         .promo-card { background: linear-gradient(135deg, #eff6ff 0%, #dcfce7 100%); }
         .item-detalhe { animation: slideDown 0.3s ease-out; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes cartDrive {
-            0% { transform: translateX(0) rotate(0deg); }
-            25% { transform: translateX(34px) rotate(-5deg); }
-            50% { transform: translateX(78px) rotate(0deg); }
-            75% { transform: translateX(116px) rotate(5deg); }
-            100% { transform: translateX(140px) rotate(0deg); }
-        }
-        @keyframes cartSpark {
-            0% { transform: translateX(14px) scale(0.4); opacity: 0; }
-            20% { opacity: 0.9; }
-            60% { opacity: 0.7; }
-            100% { transform: translateX(126px) scale(1.1); opacity: 0; }
-        }
         #toast {
             visibility: hidden; min-width: 250px; background-color: #059669; color: #fff;
             text-align: center; border-radius: 12px; padding: 16px; position: fixed;
-            z-index: 10000; left: 50%; transform: translateX(-50%); top: calc(40px + var(--safe-top)); font-weight: bold;
+            z-index: 100; left: 50%; transform: translateX(-50%); top: 30px; font-weight: bold;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadein { from {top: 0; opacity: 0;} to {top: calc(40px + var(--safe-top)); opacity: 1;} }
-        @keyframes fadeout { from {top: calc(40px + var(--safe-top)); opacity: 1;} to {top: 0; opacity: 0;} }
+        @keyframes fadein { from {top: 0; opacity: 0;} to {top: 30px; opacity: 1;} }
+        @keyframes fadeout { from {top: 30px; opacity: 1;} to {top: 0; opacity: 0;} }
         ::-webkit-scrollbar { display: none; }
-        .detalhe-itens-carrinho { display: none; }
-        .detalhe-itens-carrinho.aberto { display: block; animation: slideDown 0.2s ease-out; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans">
 
     <div id="welcome-screen">
-        <div class="welcome-cart-wrap" aria-hidden="true">
-            <div class="welcome-cart-track shadow-2xl">
-                <span class="welcome-cart-spark"></span>
-                <i class="fas fa-shopping-cart welcome-cart"></i>
-            </div>
+        <div class="mb-6 bg-white p-6 rounded-full shadow-2xl">
+            <i class="fas fa-shopping-basket text-blue-700 text-6xl"></i>
         </div>
         <h1 class="text-3xl font-black mb-2 uppercase tracking-tight">EconomizaLocal</h1>
         <p class="text-blue-100 mb-10 max-w-xs text-sm">Os melhores preços dos supermercados de Marechal Cândido Rondon em um só lugar.</p>
@@ -152,19 +61,18 @@
         <header class="bg-blue-700 text-white p-4 shadow-lg sticky top-0 z-50">
             <div class="flex justify-between items-center mb-1">
                 <h1 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-shopping-basket"></i> EconomizaLocal</h1>
-                <button onclick="carregarDadosDaPlanilha()" aria-label="Atualizar preços" title="Atualizar preços" class="text-white/80 hover:text-white transition"><i class="fas fa-sync-alt text-sm"></i></button>
+                <button onclick="carregarDadosDaPlanilha()" class="text-white/80 hover:text-white transition"><i class="fas fa-sync-alt text-sm"></i></button>
             </div>
             <div id="container-data" class="mb-3 text-[10px] text-blue-100 flex items-center gap-1 italic">
-                    <i class="fas fa-spinner fa-spin"></i> Carregando preços...
                 </div>
             <div class="relative">
-                <input type="text" id="mainSearch" onkeyup="filtrarProdutosComDebounce()" placeholder="Pesquise produtos..." aria-label="Pesquisar produtos" autocomplete="off" 
+                <input type="text" id="mainSearch" onkeyup="filtrarProdutos()" placeholder="Pesquise produtos..." 
                     class="w-full p-2.5 pl-10 rounded-xl text-gray-800 text-sm focus:ring-2 focus:ring-green-400 outline-none shadow-md">
                 <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
             </div>
         </header>
 
-        <main class="px-4 pt-4 pb-32">
+        <main class="px-4 pt-4 pb-28">
             <section id="tab-melhor-preco" class="tab-content active">
                 <div id="secao-promocoes">
                     <h2 class="text-xs font-black text-blue-800 uppercase tracking-widest mb-3 italic">🔥 Promoções da Semana</h2>
@@ -184,7 +92,7 @@
             </section>
 
             <section id="tab-carrinho" class="tab-content">
-            	<h2 id="titulo-carrinho" class="text-sm font-bold text-gray-800 mb-4 uppercase text-center italic tracking-widest">Minha Lista de Compras (0 itens)</h2>
+                <h2 class="text-sm font-bold text-gray-800 mb-4 uppercase text-center italic tracking-widest">Minha Lista de Compras</h2>
                 <div id="carrinho-vazio" class="text-center py-10"><i class="fas fa-receipt text-gray-200 text-6xl mb-4"></i><p class="text-gray-400 text-sm">Sua lista está vazia!</p></div>
                 <div id="resumo-carrinho" class="space-y-3"></div>
                 <div id="btn-limpar-container" class="hidden mt-6 text-center">
@@ -196,253 +104,58 @@
         <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-2 shadow-2xl z-50">
             <button onclick="showTab('melhor-preco', this)" class="nav-btn active flex flex-col items-center p-2 w-full"><i class="fas fa-award text-xl"></i><span class="text-[9px] mt-1 font-bold uppercase">Melhor Preço</span></button>
             <button onclick="showTab('mercados', this)" class="nav-btn flex flex-col items-center p-2 w-full text-gray-400"><i class="fas fa-store text-xl"></i><span class="text-[9px] mt-1 font-bold uppercase">Mercados</span></button>
-            <button onclick="showTab('carrinho', this)" class="nav-btn flex flex-col items-center p-2 w-full text-gray-400"><i class="fas fa-shopping-bag text-xl"></i><span class="text-[9px] mt-1 font-bold uppercase">Minha Lista (<span id="contador-minha-lista">0</span>)</span></button>
+            <button onclick="showTab('carrinho', this)" class="nav-btn flex flex-col items-center p-2 w-full text-gray-400"><i class="fas fa-shopping-bag text-xl"></i><span class="text-[9px] mt-1 font-bold uppercase">Minha Lista</span></button>
         </nav>
     </div>
 
     <script>
+        // Função para fechar a tela de boas-vindas
         function iniciarApp() {
             const screen = document.getElementById('welcome-screen');
             screen.style.opacity = '0';
-            setTimeout(() => { screen.style.visibility = 'hidden'; }, 500);
+            setTimeout(() => {
+                screen.style.visibility = 'hidden';
+            }, 500);
         }
 
-        const mercados = [
-            { id: 'M1', nome: "Copagril", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRZR9LPUdow0IRmU5_gW8OGjVK_Faj2svOND_t24Swl-iGCl5fVIM1T8aITDtwKQVIH99cVlCacl0Qb/pub?output=csv' },
-            { id: 'M2', nome: "Waimann", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vFacFVwUWZH05G-eW5rv7ulXrWG2JzbTU8Je30SM5w_1ATc6hZUcXH2kSZHvpHT6GZc4k4gvPkXHqE/pub?output=csv' },
-            { id: 'M3', nome: "Dilettare", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRyfBLLoi1FHBxGFjQ6IfCCtSJWkVWU-F1q8XBf3DyaYvaLYCigCprhXpUbD6n78iVynFRfN3uRq7pE/pub?output=csv' },
-            { id: 'M4', nome: "Allmayer", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZyyTZ_BEpICvBTjP1updcWvGjmutPITHB8YerfSVwlMn1AK43YQB0w2G_zeoLKauZWakt1_dcdrYC/pub?output=csv' },
-            { id: 'M5', nome: "Super Cercar", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQjKk7LVFzBJ-fMEcafo6OLeIGpGQ4NuX5e8dgn526woGPBeIRG4CAFMExlgqwhQm7YR6lkM_INFsAQ/pub?output=csv' },
-            { id: 'M6', nome: "Max Atacadista", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSqNCBlxAPIvnt8DJsRunDVYbc6FsUt7HYNegjXa-KQhiYwnJJxdJiwdvY37hwSGMPjHavQ8VJyf9_E/pub?output=csv' },
-            { id: 'M7', nome: "Portuga", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTx_crfv1VifyqpsfLjn90YUlm978uZy2CDPFpR0zxUEvZbvn71r-oWMylGqEIpGXusg8lyChqQ27kv/pub?output=csv' },
-            { id: 'M8', nome: "Wink", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTYVeL5I7AzIIcNkTytBhGbIbNE46sUw-nnvXEx9usAUT-xMre4IY7E-Fz0jcM7og_otXHWKk8nlIE1/pub?output=csv' },
-            { id: 'M9', nome: "Super Favorito", url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTKfkjZ9_Opghojp_3ftEZpKd-q6DXNomEeJ46f8aQnzXAv5LhPtWjjz_5ryLxUHI3eU2SpskBp3Y3s/pub?output=csv' }
-        ];
+        const URL_PLANILHA = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRbDOvQmDzzlrQusXFtXXwq0y2yYkhX9I3t-Q5AukcU-MsZ_uEMQGsGw5ZKllOyVgtSfPu_gbZU4YVS/pub?output=csv';
 
-        const CHAVE_LISTA_STORAGE = 'economizalocal-minha-lista';
-        const CHAVE_ASSINATURA_PRECOS = 'economizalocal-assinatura-precos';
-        const CHAVE_ULTIMA_ATUALIZACAO = 'economizalocal-ultima-atualizacao';
-        const TEMPO_LIMITE_FETCH_MS = 12000;
         let produtos = [];
-        let minhaLista = carregarListaDoStorage();
+        const mercados = [
+            { id: 'M1', nome: "Copagril" }, { id: 'M2', nome: "Waimman" }, { id: 'M3', nome: "Rimava" },
+            { id: 'M4', nome: "Allmayer" }, { id: 'M5', nome: "Gatti" }, { id: 'M6', nome: "Moisés" },
+            { id: 'M7', nome: "Círculo" }, { id: 'M8', nome: "Rondon" }, { id: 'M9', nome: "Eco" }
+        ];
+        let minhaLista = [];
         let mercadoAtualId = null;
-        let timeoutBusca;
-        const detalhesCarrinhoAbertos = new Set();
-        let assinaturaPrecosAtual = obterStorage(CHAVE_ASSINATURA_PRECOS, '');
-        let ultimaAtualizacaoRegistrada = obterStorage(CHAVE_ULTIMA_ATUALIZACAO, '');
-
-        function buscarComTimeout(url, opcoes = {}, timeoutMs = TEMPO_LIMITE_FETCH_MS) {
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-            return fetch(url, { ...opcoes, signal: controller.signal })
-                .finally(() => clearTimeout(timer));
-        }
-
-        function obterStorage(chave, valorPadrao = '') {
-            try {
-                const valor = localStorage.getItem(chave);
-                return valor === null ? valorPadrao : valor;
-            } catch {
-                return valorPadrao;
-            }
-        }
-
-        function definirStorage(chave, valor) {
-            try {
-                localStorage.setItem(chave, valor);
-            } catch {
-                // ignora ambientes sem acesso ao localStorage
-            }
-        }
-
-        function carregarListaDoStorage() {
-            try {
-                const listaSalva = JSON.parse(obterStorage(CHAVE_LISTA_STORAGE, '[]'));
-                if (!Array.isArray(listaSalva)) return [];
-                return listaSalva
-                    .map(item => ({ id: Number(item.id), quantidade: Math.max(1, Number(item.quantidade) || 1) }))
-                    .filter(item => Number.isFinite(item.id));
-            } catch {
-                return [];
-            }
-        }
-
-        function salvarListaNoStorage() {
-            const listaParaSalvar = minhaLista.map(item => ({ id: item.id, quantidade: item.quantidade }));
-            definirStorage(CHAVE_LISTA_STORAGE, JSON.stringify(listaParaSalvar));
-        }
-
-        function sincronizarListaComProdutos() {
-            minhaLista = minhaLista
-                .map(item => {
-                    const produtoAtual = produtos.find(prod => prod.id === item.id);
-                    return produtoAtual ? { ...produtoAtual, quantidade: item.quantidade } : null;
-                })
-                .filter(Boolean);
-            salvarListaNoStorage();
-        }
-
-        function formatarData(timestampIso) {
-            const data = new Date(timestampIso);
-            if (Number.isNaN(data.getTime())) return '';
-            return data.toLocaleDateString('pt-BR');
-        }
-
-        function normalizarTexto(texto) {
-            return (texto || '')
-                .toString()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/ç/g, 'c')
-                .replace(/Ç/g, 'C')
-                .toLowerCase();
-        }
-
-        function atualizarIndicadorData(status = 'carregando') {
-            const dataContainer = document.getElementById('container-data');
-            if (status === 'carregando') {
-                dataContainer.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Atualizando preços...`;
-                return;
-            }
-
-            if (status === 'erro') {
-                dataContainer.innerHTML = `<i class="fas fa-triangle-exclamation"></i> Erro ao atualizar preços`;
-                return;
-            }
-
-            if (!ultimaAtualizacaoRegistrada) {
-                dataContainer.innerHTML = `<i class="fas fa-clock"></i> Aguardando primeira atualização com alteração de preços`;
-                return;
-            }
-
-            const textoData = formatarData(ultimaAtualizacaoRegistrada);
-            dataContainer.innerHTML = `<i class="fas fa-clock"></i> ATUALIZADO EM ${textoData}`;
-        }
-
-        function gerarAssinaturaPrecos(listaProdutos) {
-            return listaProdutos
-                .slice()
-                .sort((a, b) => a.id - b.id)
-                .map(produto => {
-                    const precos = mercados
-                        .map(m => Number(produto[`preco${m.id}`] || 0).toFixed(2))
-                        .join('|');
-                    return `${produto.id}:${precos}`;
-                })
-                .join(';');
-        }
-
-        function contarSeparadoresForaDeAspas(textoLinha, separador) {
-            let dentroAspas = false;
-            let contador = 0;
-
-            for (const char of textoLinha) {
-                if (char === '"') dentroAspas = !dentroAspas;
-                if (char === separador && !dentroAspas) contador++;
-            }
-            return contador;
-        }
-
-        function parseLinhaCSV(linha, separador) {
-            const resultado = [];
-            let atual = '';
-            let dentroAspas = false;
-
-            for (let i = 0; i < linha.length; i++) {
-                const char = linha[i];
-                if (char === '"') {
-                    if (dentroAspas && linha[i + 1] === '"') {
-                        atual += '"';
-                        i++;
-                    } else {
-                        dentroAspas = !dentroAspas;
-                    }
-                } else if (char === separador && !dentroAspas) {
-                    resultado.push(atual.trim());
-                    atual = '';
-                } else {
-                    atual += char;
-                }
-            }
-
-            resultado.push(atual.trim());
-            return resultado;
-        }
 
         async function carregarDadosDaPlanilha() {
-            atualizarIndicadorData('carregando');
-
             try {
-                const mapaProdutos = {};
+                const resposta = await fetch(URL_PLANILHA + '&t=' + new Date().getTime());
+                const texto = await resposta.text();
+                const linhas = texto.split(/\r?\n/);
+                const cabecalho = linhas[0].split(/[,;]/);
+                document.getElementById('container-data').innerHTML = `<i class="fas fa-clock"></i> Atualizado em: ${cabecalho[14] || 'Hoje'}`;
 
-                for (const m of mercados) {
-                    if(!m.url) continue;
+                produtos = linhas.slice(1).map(linha => {
+                    const col = linha.split(/[,;]/);
+                    if (col.length < 12 || !col[0]) return null;
+                    let p = {
+                        id: parseInt(col[0]),
+                        nome: col[1],
+                        marca: col[2],
+                        promo: col[12] ? col[12].trim().toUpperCase() === 'TRUE' : false
+                    };
+                    mercados.forEach((m, i) => {
+                        p[`preco${m.id}`] = parseFloat((col[3 + i] || "0").replace(',', '.'));
+                    });
+                    return p;
+                }).filter(item => item !== null);
 
-                    try {
-                        const resposta = await buscarComTimeout(m.url + '&t=' + new Date().getTime());
-                        if (!resposta.ok) throw new Error(`Falha HTTP ${resposta.status}`);
-
-                        const texto = await resposta.text();
-                        const linhas = texto.split(/\r?\n/).filter(Boolean);
-                        if (linhas.length < 2) continue;
-
-                        const cabecalho = linhas[0];
-                        const separador = contarSeparadoresForaDeAspas(cabecalho, ';') >= contarSeparadoresForaDeAspas(cabecalho, ',') ? ';' : ',';
-                        const linhasDados = linhas.slice(1);
-
-                        linhasDados.forEach(linha => {
-                            const col = parseLinhaCSV(linha, separador);
-                            if (col.length < 4 || !col[0]) return;
-
-                            const idProd = col[0].trim();
-                            const isPromoLinha = col[4] ? col[4].trim().toUpperCase() === 'PROMOCAO' : false;
-                            
-                            if (!mapaProdutos[idProd]) {
-                                mapaProdutos[idProd] = {
-                                    id: parseInt(idProd),
-                                    nome: col[1],
-                                    marca: col[2],
-                                    promo: isPromoLinha,
-                                    promoMercados: []
-                                };
-                                mercados.forEach(merc => mapaProdutos[idProd][`preco${merc.id}`] = 0);
-                            }
-
-                            if (isPromoLinha) {
-                                mapaProdutos[idProd].promo = true;
-                                if (!mapaProdutos[idProd].promoMercados.includes(m.nome)) {
-                                    mapaProdutos[idProd].promoMercados.push(m.nome);
-                                }
-                            }
-
-                            mapaProdutos[idProd][`preco${m.id}`] = parseFloat((col[3] || "0").replace(',', '.'));
-                        });
-                    } catch (e) {
-                        console.error(`Erro no mercado ${m.nome}:`, e);
-                    }
-                }
-
-                produtos = Object.values(mapaProdutos);
-                sincronizarListaComProdutos();
-
-                const novaAssinaturaPrecos = gerarAssinaturaPrecos(produtos);
-                if (novaAssinaturaPrecos && novaAssinaturaPrecos !== assinaturaPrecosAtual) {
-                    assinaturaPrecosAtual = novaAssinaturaPrecos;
-                    definirStorage(CHAVE_ASSINATURA_PRECOS, assinaturaPrecosAtual);
-                    ultimaAtualizacaoRegistrada = new Date().toISOString();
-                    definirStorage(CHAVE_ULTIMA_ATUALIZACAO, ultimaAtualizacaoRegistrada);
-                }
-
-                atualizarIndicadorData('ok');
-                
                 filtrarProdutos();
                 renderizarMercados();
-                renderizarCarrinho();
-				atualizarContadorMinhaLista();
-            } catch (erro) { 
-                atualizarIndicadorData('erro');
-                console.error("Erro Geral:", erro); 
+            } catch (erro) {
+                console.error("Erro:", erro);
             }
         }
 
@@ -454,26 +167,17 @@
             if(!isBusca) {
                 document.getElementById('secao-promocoes').classList.remove('hidden');
                 promoCont.innerHTML = '';
-                produtos
-                    .filter(p => Array.isArray(p.promoMercados) && p.promoMercados.length > 0)
-                    .forEach(p => {
-                        const precosPromocao = mercados
-                            .filter(m => p.promoMercados.includes(m.nome))
-                            .map(m => p[`preco${m.id}`])
-                            .filter(v => v > 0);
-
-                        if (precosPromocao.length === 0) return;
-
-                        const minP = Math.min(...precosPromocao);
-                        const mercadosPromocao = p.promoMercados.join(', ');
-
-                        promoCont.innerHTML += `
-                            <div class="promo-card min-w-[180px] p-3 rounded-2xl border border-blue-100 shadow-sm">
-                                <h4 class="font-bold text-gray-800 text-xs truncate">${p.nome} <span class="text-[10px] text-gray-500 font-semibold">(${p.marca})</span></h4>
-                                <p class="text-[9px] text-blue-600 font-bold uppercase">${mercadosPromocao}</p>
-                                <p class="text-green-600 font-black text-base">R$ ${minP.toFixed(2)}</p>
-                            </div>`;
-                    });
+                produtos.filter(p => p.promo).forEach(p => {
+                    const precos = mercados.map(m => p[`preco${m.id}`]).filter(v => v > 0);
+                    const minP = Math.min(...precos);
+                    const mIdeal = mercados.find(m => p[`preco${m.id}`] === minP);
+                    promoCont.innerHTML += `
+                        <div class="promo-card min-w-[160px] p-3 rounded-2xl border border-blue-100 shadow-sm">
+                            <h4 class="font-bold text-gray-800 text-xs truncate">${p.nome}</h4>
+                            <p class="text-[9px] text-blue-600 font-bold uppercase">${mIdeal.nome}</p>
+                            <p class="text-green-600 font-black text-base">R$ ${minP.toFixed(2)}</p>
+                        </div>`;
+                });
             } else {
                 document.getElementById('secao-promocoes').classList.add('hidden');
             }
@@ -482,7 +186,6 @@
                 const itemNaLista = minhaLista.find(item => item.id === p.id);
                 const qtd = itemNaLista ? itemNaLista.quantidade : 0;
                 const precosValidos = mercados.map(m => p[`preco${m.id}`]).filter(v => v > 0);
-                if (precosValidos.length === 0) return;
                 const minP = Math.min(...precosValidos);
 
                 if(isBusca) {
@@ -495,7 +198,6 @@
                             <div class="grid grid-cols-3 gap-2 pt-2 border-t border-dashed">
                                 ${mercados.map(m => {
                                     const v = p[`preco${m.id}`];
-                                    if(!v) return '';
                                     return `<div class="text-center p-1 rounded ${v === minP ? 'bg-green-50' : 'bg-gray-50'}">
                                         <p class="text-[7px] uppercase font-bold text-gray-400">${m.nome}</p>
                                         <p class="text-[10px] font-black ${v === minP ? 'text-green-600' : 'text-gray-600'}">R$ ${v.toFixed(2)}</p>
@@ -527,14 +229,9 @@
         }
 
         function filtrarProdutos() {
-            const termo = normalizarTexto(document.getElementById('mainSearch').value);
-            const filtrados = produtos.filter(p => normalizarTexto(p.nome).includes(termo) || normalizarTexto(p.marca).includes(termo));
+            const termo = document.getElementById('mainSearch').value.toLowerCase();
+            const filtrados = produtos.filter(p => p.nome.toLowerCase().includes(termo) || p.marca.toLowerCase().includes(termo));
             renderizarHome(filtrados, termo.length > 0);
-        }
-
-        function filtrarProdutosComDebounce() {
-            clearTimeout(timeoutBusca);
-            timeoutBusca = setTimeout(filtrarProdutos, 180);
         }
 
         function adicionarLista(id) { 
@@ -542,7 +239,6 @@
             if (item) item.quantidade++;
             else { const p = produtos.find(prod => prod.id === id); minhaLista.push({ ...p, quantidade: 1 }); }
             atualizarTelas();
-            if(mercadoAtualId) abrirMercado(mercadoAtualId);
         }
 
         function removerItemEspecifico(id) { 
@@ -552,119 +248,27 @@
                 else minhaLista = minhaLista.filter(i => i.id !== id);
             }
             atualizarTelas();
-            if(mercadoAtualId) abrirMercado(mercadoAtualId);
         }
 
         function atualizarTelas() {
-            salvarListaNoStorage();
             filtrarProdutos();
             renderizarCarrinho();
-			atualizarContadorMinhaLista();
             const x = document.getElementById("toast"); x.className = "show"; setTimeout(() => x.className = x.className.replace("show", ""), 2000);
-        }
-
-		   function atualizarContadorMinhaLista() {
-            const totalItens = minhaLista.reduce((acc, item) => acc + (Number(item.quantidade) || 0), 0);
-            const contadorNav = document.getElementById('contador-minha-lista');
-            const tituloCarrinho = document.getElementById('titulo-carrinho');
-
-            if (contadorNav) contadorNav.textContent = String(totalItens);
-
-            if (tituloCarrinho) {
-                const sufixo = totalItens === 1 ? 'item' : 'itens';
-                tituloCarrinho.textContent = `Minha Lista de Compras (${totalItens} ${sufixo})`;
-            }
-        }
-
-        function toggleItensCarrinho(idMercado) {
-            const div = document.getElementById('detalhe-itens-' + idMercado);
-            const icon = document.getElementById('icon-arrow-' + idMercado);
-
-            if (!div || !icon) return;
-
-            div.classList.toggle('aberto');
-            icon.classList.toggle('fa-chevron-down');
-            icon.classList.toggle('fa-chevron-up');
-
-            if (div.classList.contains('aberto')) detalhesCarrinhoAbertos.add(idMercado);
-            else detalhesCarrinhoAbertos.delete(idMercado);
         }
 
         function renderizarCarrinho() {
             const cont = document.getElementById('resumo-carrinho');
             const vazio = document.getElementById('carrinho-vazio');
             const btnLimpar = document.getElementById('btn-limpar-container');
-            if(minhaLista.length === 0) {
-                detalhesCarrinhoAbertos.clear();
-                cont.innerHTML = '';
-                vazio.classList.remove('hidden');
-                btnLimpar.classList.add('hidden');
-                return;
-            }
+            if(minhaLista.length === 0) { cont.innerHTML = ''; vazio.classList.remove('hidden'); btnLimpar.classList.add('hidden'); return; }
             vazio.classList.add('hidden'); btnLimpar.classList.remove('hidden');
-
-            const resumoMercados = mercados.map(m => {
-                let totalM = 0;
-                let itensSemPreco = 0;
-                const listaItensHtml = minhaLista.map(p => {
-                    const preco = p[`preco${m.id}`];
-                    const temPreco = preco > 0;
-
-                    if (temPreco) totalM += preco * p.quantidade;
-                    else itensSemPreco++;
-
-                    return `
-                    <div class="flex justify-between items-center py-2 border-b border-gray-50 last:border-0 gap-2">
-                        <div class="flex-1 min-w-0">
-                            <span class="text-[11px] text-gray-600 block truncate">${p.quantidade}x ${p.nome} <span class="font-bold">(${p.marca})</span></span>
-                            <span class="text-[11px] font-bold ${temPreco ? 'text-gray-800' : 'text-amber-500'} block">${temPreco ? `R$ ${(preco * p.quantidade).toFixed(2)}` : 'Sem preço'}</span>
-                        </div>
-                        <div class="flex items-center gap-1 bg-white/70 p-1 rounded-lg border border-slate-100">
-                            <button onclick="event.stopPropagation(); removerItemEspecifico(${p.id})" class="w-7 h-7 flex items-center justify-center bg-white border border-red-100 rounded-md text-red-500 shadow-sm active:scale-75" title="Excluir 1 item" aria-label="Excluir 1 item">
-                                <i class="fas fa-trash-alt text-[10px]"></i>
-                            </button>
-                            <span class="text-xs font-black text-blue-700 min-w-[15px] text-center">${p.quantidade}</span>
-                            <button onclick="event.stopPropagation(); adicionarLista(${p.id})" class="w-7 h-7 flex items-center justify-center bg-green-600 rounded-md text-white shadow-sm active:scale-75" title="Adicionar 1 item">
-                                <i class="fas fa-plus text-[10px]"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                }).join('');
-
-                return { mercado: m, total: totalM, itensSemPreco, listaItensHtml };
-            }).sort((a, b) => {
-                if (a.itensSemPreco !== b.itensSemPreco) return a.itensSemPreco - b.itensSemPreco;
-                return a.total - b.total;
-            });
-
-            const primeiroMercadoCompleto = resumoMercados.find(r => r.itensSemPreco === 0);
-
-            cont.innerHTML = resumoMercados.map(({ mercado, total, itensSemPreco, listaItensHtml }) => {
-                const mercadoEstaAberto = detalhesCarrinhoAbertos.has(mercado.id);
-                const destaqueMaisBarato = primeiroMercadoCompleto && mercado.id === primeiroMercadoCompleto.mercado.id
-                    ? `<span class="text-[9px] font-black uppercase bg-green-100 text-green-700 px-2 py-1 rounded-full">Mais barato</span>`
-                    : '';
-
-                const infoCobertura = itensSemPreco > 0
-                    ? `<p class="text-[10px] text-amber-500 font-bold">${itensSemPreco} item(ns) sem preço neste mercado</p>`
-                    : `<p class="text-[10px] text-gray-400">${minhaLista.length} itens na lista</p>`;
-
+            
+            cont.innerHTML = mercados.map(m => {
+                const totalM = minhaLista.reduce((acc, p) => acc + (p[`preco${m.id}`] * p.quantidade), 0);
                 return `
-                <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                    <div onclick="toggleItensCarrinho('${mercado.id}')" class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50 transition">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-bold text-gray-800 text-sm">${mercado.nome} <i id="icon-arrow-${mercado.id}" class="fas ${mercadoEstaAberto ? 'fa-chevron-up' : 'fa-chevron-down'} text-[10px] ml-1 text-gray-400"></i></h3>
-                                ${destaqueMaisBarato}
-                            </div>
-                            ${infoCobertura}
-                        </div>
-                        <div class="text-right"><p class="text-lg font-black text-blue-600">R$ ${total.toFixed(2)}</p></div>
-                    </div>
-                    <div id="detalhe-itens-${mercado.id}" class="detalhe-itens-carrinho ${mercadoEstaAberto ? 'aberto' : ''} bg-slate-50 px-4 pb-3">
-                        ${listaItensHtml}
-                    </div>
+                <div class="bg-white rounded-2xl shadow-sm border p-4 flex justify-between items-center">
+                    <div><h3 class="font-bold text-gray-800 text-sm">${m.nome}</h3><p class="text-[10px] text-gray-400">${minhaLista.length} itens na lista</p></div>
+                    <div class="text-right"><p class="text-lg font-black text-blue-600">R$ ${totalM.toFixed(2)}</p></div>
                 </div>`;
             }).join('');
         }
@@ -679,56 +283,27 @@
         }
 
         function abrirMercado(id) { 
-            mercadoAtualId = id;
             const m = mercados.find(merc => merc.id === id); 
             document.getElementById('lista-mercados').classList.add('hidden'); 
             document.getElementById('detalhe-mercado').classList.remove('hidden'); 
             document.getElementById('mercado-header-info').innerHTML = `<div class="bg-blue-700 p-4 rounded-xl text-white shadow-md"><h3 class="font-bold">${m.nome}</h3></div>`; 
-            
-            document.getElementById('produtos-mercado-especifico').innerHTML = produtos.map(p => {
-                const itemNaLista = minhaLista.find(item => item.id === p.id);
-                const qtd = itemNaLista ? itemNaLista.quantidade : 0;
-                const precoM = p[`preco${id}`];
-                if(precoM <= 0) return '';
-                
-                return `
+            document.getElementById('produtos-mercado-especifico').innerHTML = produtos.map(p => `
                 <div class="bg-white p-3 rounded-lg border flex justify-between items-center text-sm shadow-sm">
-                    <div class="flex-1">
-                        <div class="flex flex-col">
-                            <span class="font-medium text-gray-800">${p.nome}</span>
-                            <span class="text-[10px] text-gray-400 font-bold uppercase">${p.marca}</span>
-                        </div>
-                        <p class="text-[11px] font-bold text-blue-600 mt-1">R$ ${precoM.toFixed(2)}</p>
-                    </div>
-                    ${renderSeletorQtd(p.id, qtd)}
-                </div>`;
-            }).join(''); 
+                    <span>${p.nome}</span>
+                    <span class="font-bold text-blue-600">R$ ${p[`preco${id}`].toFixed(2)}</span>
+                </div>`).join(''); 
         }
 
-        function voltarMercados() { 
-            mercadoAtualId = null;
-            document.getElementById('lista-mercados').classList.remove('hidden'); 
-            document.getElementById('detalhe-mercado').classList.add('hidden'); 
-        }
-
-        function limparLista() { 
-            minhaLista = []; 
-            atualizarTelas(); 
-            if(mercadoAtualId) abrirMercado(mercadoAtualId);
-        }
-
+        function voltarMercados() { document.getElementById('lista-mercados').classList.remove('hidden'); document.getElementById('detalhe-mercado').classList.add('hidden'); }
+        function limparLista() { minhaLista = []; atualizarTelas(); }
         function showTab(id, el) { 
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
             document.querySelectorAll('.nav-btn').forEach(b => { b.classList.add('text-gray-400'); b.classList.remove('active'); }); 
             document.getElementById('tab-' + id).classList.add('active'); 
             el.classList.add('active'); el.classList.remove('text-gray-400'); 
         }
-        
-        window.onload = () => {
-            atualizarIndicadorData('ok');
-            carregarDadosDaPlanilha();
-			atualizarContadorMinhaLista();
-        };
+
+        window.onload = carregarDadosDaPlanilha;
     </script>
 </body>
 </html>
