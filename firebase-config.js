@@ -5,7 +5,7 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase
 
 // 2. O seu código chave (copie exatamente como está na sua imagem)
 const firebaseConfig = {
-  apiKey: "AIzaSyCDs52kk5BLAJ...", 
+  apiKey: "Tk9CpRVdIkhv1DQMM54YjqRHwj93", 
   authDomain: "economizalocal.firebaseapp.com",
   projectId: "economizalocal",
   storageBucket: "economizalocal.appspot.com",
